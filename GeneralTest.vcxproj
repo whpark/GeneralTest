@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="EqualityOperator.cpp" />
     <ClCompile Include="GeneralTest.cpp" />
+    <ClCompile Include="misc.cpp" />
     <ClCompile Include="TheDoubleLifeOfObjects.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
