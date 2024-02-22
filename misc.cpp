@@ -7,9 +7,23 @@
 
 #include <catch.hpp>
 
+#include <boost/endian.hpp>
+
 using namespace std::literals;
 
 namespace test {
+
+	struct normal {
+		uint8_t foo;
+		uint32_t bar;
+	};
+	static_assert(sizeof(normal) == 8);
+
+	struct packed {
+		uint8_t foo;
+		boost::endian::native_uint32_t bar;
+	};
+	static_assert(sizeof(packed) == 5);
 
 	TEST_CASE("misc", "[nth_element]") {
 		std::vector<int> data{ 8, 1, 9, 2, 7, 3, 6, 4, 5 };
