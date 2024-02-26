@@ -107,13 +107,36 @@ namespace test {
 
 		//constexpr auto strW = TStringLiteral<wchar_t, strA>{};
 		constexpr auto strW = TStringLiteral<wchar_t, "Hello World!"_lit>{};
-		static std::wstring const str2 (L"Sdfasdf");
+		static std::wstring const str2 (L"Hello World!");
 		REQUIRE(str2 == strW.value);
 		REQUIRE(str2 == L"Hello World!");
 		fmt::print(L"str: {}\n", strW.value);
 
 		REQUIRE("ABC"_ToW == L"ABC"s);
 		REQUIRE(ToString<"ABC"_lit, wchar_t>() == L"ABC"s);
+	}
+
+	TEST_CASE("misc", "permutation") {
+		const std::vector<std::string> vec{"axe", "bow", "cat", "dog", "elk", "fox"};
+
+		for (auto [i, s] : std::views::enumerate(vec)) {
+			fmt::print("{}: {}\n", i, s);
+		}
+
+		auto ev = std::views::enumerate(vec);
+
+		auto strictly_ascending = [](const auto& triple_idx_elem) {
+			const auto& [ie0, ie1, ie2] = triple_idx_elem;
+			const auto& idx0            = get<0>(ie0);
+			const auto& idx1            = get<0>(ie1);
+			const auto& idx2            = get<0>(ie2);
+			return idx0 < idx1 && idx1 < idx2;
+		};
+
+		for (const auto& [ie0, ie1, ie2] : std::views::cartesian_product(ev, ev, ev) | std::views::filter(strictly_ascending)) {
+			fmt::println("{} {} {}", get<1>(ie0), get<1>(ie1), get<1>(ie2));
+		}
+
 	}
 
 }
