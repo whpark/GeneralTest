@@ -139,6 +139,7 @@
     <ClCompile Include="GeneralTest.cpp" />
     <ClCompile Include="Json.cpp" />
     <ClCompile Include="misc.cpp" />
+    <ClCompile Include="SRWLock.ixx" />
     <ClCompile Include="TheDoubleLifeOfObjects.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
