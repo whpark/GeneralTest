@@ -1,0 +1,11 @@
+#include <fmt/core.h>
+#include <fmt/xchar.h>
+
+xStart : type = {
+	foo : () -> void = {
+		fmt::print("cppfront: foo\n");
+	}
+	bar : () -> void = {
+		fmt::print("cppfront: bar\n");
+	}
+}

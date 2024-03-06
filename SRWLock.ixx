@@ -15,6 +15,8 @@ module;
 
 export module SRWLock;
 
+#if 0
+
 namespace test {
 
 	struct ThreadTestData {
@@ -85,3 +87,5 @@ namespace test {
 	}
 
 } // namespace test
+
+#endif

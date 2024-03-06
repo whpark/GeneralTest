@@ -1,0 +1,8 @@
+#include "fmt/core.h"
+#include "cppfront_test.h2"
+
+PrintSomething : () -> void = {
+	var : xStart = ();
+	var.foo();
+	var.bar();
+}

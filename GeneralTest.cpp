@@ -4,8 +4,15 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/benchmark/catch_benchmark.hpp>
 
+extern auto PrintSomething() -> void;
+
 int main(int argc, char* argv[]) {
 	Catch::Session session; // There must be exactly one instance
 	session.applyCommandLine(std::max(1, argc), argv);
-	return session.run();
+	auto result = session.run();
+
+	// cppfront
+	PrintSomething();
+
+	return result;
 }

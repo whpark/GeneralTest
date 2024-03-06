@@ -33,5 +33,21 @@
     <ClCompile Include="SRWLock.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cppfront_test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="cppfront_test.cpp2">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="cppfront_test.h2">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cppfront_test.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
