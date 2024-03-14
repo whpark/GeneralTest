@@ -1,9 +1,13 @@
 #include <vector>
 #include <algorithm>
-#include <iostream>
+#include <fstream>
 #include <string>
+#include <filesystem>
+#include <ranges>
 #include <fmt/core.h>
 #include <fmt/xchar.h>
+#include <fmt/chrono.h>
+#include <thread>
 
 #include <catch.hpp>
 
@@ -116,7 +120,7 @@ namespace test {
 		REQUIRE(ToString<"ABC"_lit, wchar_t>() == L"ABC"s);
 	}
 
-	TEST_CASE("misc", "permutation") {
+	TEST_CASE("misc", "[permutation]") {
 		const std::vector<std::string> vec{"axe", "bow", "cat", "dog", "elk", "fox"};
 
 		for (auto [i, s] : std::views::enumerate(vec)) {
@@ -138,5 +142,94 @@ namespace test {
 		}
 
 	}
+
+
+	//=============================================================================================================================
+	// https://www.sandordargo.com/blog/2024/03/06/std-filesystem-part2-iterate-over-directories
+	void iterateOverDirectory(const std::filesystem::path& root) {
+		if (!exists(root))
+			return;
+		std::array<std::string, 2> allowed_extensions {".h", ".cpp"};
+
+		auto const end = std::filesystem::recursive_directory_iterator();
+		for (auto entry = std::filesystem::recursive_directory_iterator(root); entry != end; ++entry) {
+			const auto filename = entry->path().filename().string();
+			const auto extension = entry->path().extension().string();
+			const auto level = entry.depth();
+			if (!entry->is_directory() && std::ranges::find(allowed_extensions, extension) == allowed_extensions.end()) {
+				continue;
+			}
+			if (entry->is_directory() && filename == "build") {
+				entry.disable_recursion_pending();
+				continue;
+			}
+			if (entry->is_directory()) {
+				fmt::print("{:{}} directory: {}\n", ' ', level * 3, filename);
+			}
+			else if (entry->is_regular_file()) {
+				fmt::print("{:{}} file: {}\n", ' ', level * 3, filename);
+			}
+			else {
+				fmt::print("{:{}} unknown type: {}\n", ' ', level * 3, filename);
+			}
+		}
+	}
+
+	TEST_CASE("filesystem", "[disable_recursion_pending]") {
+		std::filesystem::create_directory("temp");
+		std::filesystem::create_directory("temp/build");
+		std::filesystem::create_directory("temp/include");
+		std::filesystem::create_directory("temp/src");
+
+		// create files
+		std::ofstream("temp/CMakeLists.txt").put('a');
+		std::ofstream("temp/build/moduleA.h").put('a');
+		std::ofstream("temp/build/moduleA.cpp").put('b');
+		std::ofstream("temp/include/moreinfo.txt").put('a');
+		std::ofstream("temp/include/moduleA.h").put('a');
+		std::ofstream("temp/include/moduleB.h").put('b');
+		std::ofstream("temp/src/moduleA.cpp").put('a');
+		std::ofstream("temp/src/moduleB.cpp").put('b');
+
+		iterateOverDirectory("temp");
+
+		std::error_code ec;
+		std::filesystem::remove_all("temp", ec);
+		fmt::print("{}\n", ec ? "NOT Removed" : "Removed");
+		iterateOverDirectory("temp");
+	}
+
+
+	//void task(int count) { 
+	//	fmt::print("{}, {}\n", std::chrono::system_clock::now(), count);
+	//}
+
+	//void triggerTask(std::stop_token st) { 
+	//	auto t0 = std::chrono::system_clock::now();
+
+	//	int count = 0;
+	//	while (!st.stop_requested()) { 
+	//		task(count++); // Call the task function 
+	//		//std::this_thread::sleep_for( std::chrono::microseconds(2500) ); 
+	//		std::this_thread::sleep_for(std::chrono::microseconds(10));
+
+	//		if (std::chrono::system_clock::now() - t0 > 5s)
+	//			break;
+	//	} 
+	//}
+
+	//TEST_CASE("misc", "[sleep]") {
+	//	std::ios_base::sync_with_stdio( false );
+	//	std::jthread t(triggerTask);
+	//	bool test = false;
+
+	//	auto t0 = std::chrono::system_clock::now();
+
+	//	while (true) { 
+	//		if (std::chrono::system_clock::now() - t0 > 5s)
+	//			break;
+	//	} 
+
+	//}
 
 }
