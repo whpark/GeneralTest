@@ -199,6 +199,14 @@ namespace test {
 		iterateOverDirectory("temp");
 	}
 
+	TEST_CASE("filesystem", "[parent_path]") {
+		namespace fs = std::filesystem;
+
+		fs::path path("/a/b/c/d/");
+		REQUIRE(path.parent_path() == fs::path("/a/b/c/d"));
+		REQUIRE(path.parent_path().parent_path() == fs::path("/a/b/c"));
+		REQUIRE(path.parent_path().parent_path() != fs::path("/a/b/c/"));
+	}
 
 	//void task(int count) { 
 	//	fmt::print("{}, {}\n", std::chrono::system_clock::now(), count);
