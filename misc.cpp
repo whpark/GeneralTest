@@ -12,6 +12,7 @@
 #include <catch.hpp>
 
 #include <boost/endian.hpp>
+#include <lzma.h>
 
 using namespace std::literals;
 
@@ -206,6 +207,12 @@ namespace test {
 		REQUIRE(path.parent_path() == fs::path("/a/b/c/d"));
 		REQUIRE(path.parent_path().parent_path() == fs::path("/a/b/c"));
 		REQUIRE(path.parent_path().parent_path() != fs::path("/a/b/c/"));
+	}
+
+	TEST_CASE("liblzma", "[lzma]") {
+		// get lzma version
+		const auto version = lzma_version_string();
+		fmt::print("lzma version: {}\n", version);
 	}
 
 	//void task(int count) { 
