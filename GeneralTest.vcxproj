@@ -145,6 +145,7 @@
     <ClCompile Include="Json.cpp" />
     <ClCompile Include="misc.cpp" />
     <ClCompile Include="SRWLock.ixx" />
+    <ClCompile Include="Cereal.cpp" />
     <ClCompile Include="TheDoubleLifeOfObjects.cpp" />
   </ItemGroup>
   <ItemGroup>

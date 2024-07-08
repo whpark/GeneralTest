@@ -5,7 +5,6 @@
 #include <catch.hpp>
 
 #include <glaze/glaze.hpp>
-#include <glaze/core/macros.hpp>
 
 namespace {
 
@@ -14,7 +13,11 @@ namespace {
         int j{};
         std::string str;
 
-        GLZ_LOCAL_META(sTest, i, j, str);
+        struct glaze {
+            using T = sTest;
+			constexpr static auto value = glz::object("i", &T::i, "j", &T::j, "str", &T::str);
+        };
+        //GLZ_LOCAL_META(sTest, i, j, str);
         //struct glaze {
         //    using T = sTest;
         //    static constexpr auto value = glz::object("i", &T::i, "j", &T::j, "str", &T::str);
