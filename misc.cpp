@@ -31,6 +31,11 @@ namespace test {
 	static_assert(sizeof(packed) == 5);
 
 	TEST_CASE("misc", "[nth_element]") {
+		int i = 0;
+		int j = ++i = 43;
+		REQUIRE(j == 43);
+		REQUIRE(i == 43);
+
 		std::vector<int> data{ 8, 1, 9, 2, 7, 3, 6, 4, 5 };
 		std::nth_element(data.begin(), data.begin() + 4, data.end());
 		REQUIRE(data[4] == 5);
