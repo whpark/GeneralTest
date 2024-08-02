@@ -16,6 +16,101 @@
 
 using namespace std::literals;
 
+namespace testVirtual {
+
+	class A {
+	public:
+		A() {
+			fmt::println("A::A()");
+			REQUIRE(Open() == 'A');
+		}
+		virtual ~A() {
+			fmt::println("A::~A()");
+			REQUIRE(Close() == 'A');
+		}
+		virtual int Open() {
+			fmt::println("A::Open()");
+			return 'A';
+		}
+		virtual int Close() {
+			fmt::println("A::Close()");
+			return 'A';
+		}
+	};
+
+	class B : public A {
+	public:
+		B() {
+			fmt::println("B::B()");
+			REQUIRE(Open() == 'B');
+		}
+		~B() override {
+			fmt::println("B::~B()");
+			REQUIRE(Close() == 'B');
+		}
+
+		int Open() override {
+			fmt::println("B::Open()");
+			return 'B';
+		}
+		int Close() override {
+			fmt::println("B::Close()");
+			return 'B';
+		}
+	};
+
+	class C : public A {
+	public:
+		C() {
+			fmt::println("C::C()");
+			REQUIRE(Open() == 'A');
+		}
+		~C() override {
+			fmt::println("C::~C()");
+			REQUIRE(Close() == 'A');
+		}
+
+		//int Open() override {
+		//	fmt::println("B::Open()");
+		//	return 'B';
+		//}
+		//int Close() override {
+		//	fmt::println("B::Close()");
+		//	return 'B';
+		//}
+	};
+
+	class D : public C {
+	public:
+		D() {
+			fmt::println("D::D()");
+			REQUIRE(Open() == 'D');
+		}
+		~D() override {
+			fmt::println("D::~D()");
+			REQUIRE(Close() == 'D');
+		}
+		int Open() override {
+			fmt::println("D::Open()");
+			return 'D';
+		}
+		int Close() override {
+			fmt::println("D::Close()");
+			return 'D';
+		}
+	};
+
+	TEST_CASE("virtual", "[virtual]") {
+		fmt::println("====== virtual ======");
+		std::unique_ptr<A> a = std::make_unique<A>();
+		std::unique_ptr<A> b = std::make_unique<B>();
+		std::unique_ptr<A> c = std::make_unique<C>();
+		std::unique_ptr<A> d = std::make_unique<D>();
+		fmt::println("====== closing ======");
+	}
+
+}
+
 namespace test {
 
 	struct normal {
