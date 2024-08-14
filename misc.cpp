@@ -16,6 +16,26 @@
 
 using namespace std::literals;
 
+#include "boost/pfr.hpp"
+namespace testPFR {
+	struct A {
+		int x;
+		float y;
+	};
+	struct B : A {
+		//double z;
+	};
+
+	TEST_CASE("pfr", "[pfr]") {
+		A a{ 1, 2.0f };
+		B b{ {3, 4.0f}/*, 5.0*/ };
+		REQUIRE(boost::pfr::get<0>(a) == 1);
+		REQUIRE(boost::pfr::get<1>(a) == 2.0f);
+		//REQUIRE(boost::pfr::get<0>(b) == 3);
+	}
+
+}
+
 namespace testVirtual {
 
 	class A {

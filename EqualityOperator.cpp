@@ -38,4 +38,22 @@ namespace {
         }
     }
 
+    TEST_CASE("round", "[floating_point]") {
+        double a = 0.1;
+        double b = 0.7;
+        double c = -0.8;
+
+        int ar = std::round(a);
+        int br = std::round(b);
+        int cr = std::round(c);
+        int cr2 = int(c + 0.5);
+        int cr3 = int(c - 0.5);
+
+        REQUIRE(ar == 0);
+		REQUIRE(br == 1);
+		REQUIRE(cr == -1);
+        REQUIRE(cr2 == 0);
+        REQUIRE(cr3 == -1);
+    }
+
 }
