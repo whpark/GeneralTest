@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cereal_templ.cpp" />
     <ClCompile Include="cppfront_test.cpp" />
     <ClCompile Include="EqualityOperator.cpp" />
     <ClCompile Include="GeneralTest.cpp" />

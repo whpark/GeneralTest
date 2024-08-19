@@ -45,6 +45,9 @@
     <ClCompile Include="lexy_calculator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cereal_templ.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="cppfront_test.cpp2">

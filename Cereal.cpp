@@ -44,6 +44,12 @@ struct EmbarrassingDerivedClass : public BaseClass {
 };
 
 struct DerivedClassA : public DerivedClassOne {
+	using base_t = DerivedClassOne;
+	using this_t = DerivedClassA;
+
+	base_t& base() { return *this; }
+	base_t const& base() const { return *this; }
+
 	constexpr static uint32_t s_version = 1;
 	DerivedClassA() : DerivedClassOne(), y{} {}
 	DerivedClassA(int x, float y) : DerivedClassOne(x), y(y) {}
@@ -59,7 +65,7 @@ struct DerivedClassA : public DerivedClassOne {
 		else {
 			fmt::println("{} storing...", sl.function_name());
 		}
-		ar(cereal::base_class<DerivedClassOne>(this), y);
+		ar(base(), y);
 	}
 };
 
@@ -102,7 +108,14 @@ void EmbarrassingDerivedClass::sayType() {
 	fmt::println("EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo! {} ", y);
 }
 
-
+template <typename T, typename TPTR>
+T* GetAs(TPTR& ptr) {
+	return dynamic_cast<T*>(ptr.get());
+}
+template <typename T, typename TPTR>
+T const* GetAs(TPTR const& ptr) {
+	return dynamic_cast<T const*>(ptr.get());
+}
 
 TEST_CASE("Cereal", "[Cereal]") {
 	{
@@ -151,6 +164,10 @@ TEST_CASE("Cereal", "[Cereal]") {
 			ptr1->sayType();  // "DerivedClassOne"
 			ptr2->sayType();  // "EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo!"
 			ptrA->sayType();  // "DerivedClassA"
+			REQUIRE(GetAs<DerivedClassOne>(ptr1)->x == 1);
+			REQUIRE(GetAs<EmbarrassingDerivedClass>(ptr2)->y == 2);
+			REQUIRE(GetAs<DerivedClassA>(ptrA)->x == 5);
+			REQUIRE(GetAs<DerivedClassA>(ptrA)->y == 6.0f);
 		}
 	}
 
@@ -169,6 +186,10 @@ TEST_CASE("Cereal", "[Cereal]") {
 			ptr1->sayType();  // "DerivedClassOne"
 			ptr2->sayType();  // "EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo!"
 			ptrA->sayType();  // "DerivedClassA"
+			REQUIRE(GetAs<DerivedClassOne>(ptr1)->x == 1);
+			REQUIRE(GetAs<EmbarrassingDerivedClass>(ptr2)->y == 2);
+			REQUIRE(GetAs<DerivedClassA>(ptrA)->x == 5);
+			REQUIRE(GetAs<DerivedClassA>(ptrA)->y == 6.0f);
 		}
 	}
 
@@ -187,6 +208,10 @@ TEST_CASE("Cereal", "[Cereal]") {
 			ptr1->sayType();  // "DerivedClassOne"
 			ptr2->sayType();  // "EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo!"
 			ptrA->sayType();  // "DerivedClassA"
+			REQUIRE(GetAs<DerivedClassOne>(ptr1)->x == 1);
+			REQUIRE(GetAs<EmbarrassingDerivedClass>(ptr2)->y == 2);
+			REQUIRE(GetAs<DerivedClassA>(ptrA)->x == 5);
+			REQUIRE(GetAs<DerivedClassA>(ptrA)->y == 6.0f);
 		}
 	}
 }
