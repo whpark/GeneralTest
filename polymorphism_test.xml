@@ -6,7 +6,7 @@
 		<ptr_wrapper>
 			<id>2147483649</id>
 			<data>
-				<value0>0</value0>
+				<value0>1</value0>
 			</data>
 		</ptr_wrapper>
 	</value0>
@@ -16,9 +16,23 @@
 		<ptr_wrapper>
 			<id>2147483650</id>
 			<data>
-				<value0>0</value0>
+				<value0>2</value0>
 			</data>
 		</ptr_wrapper>
 	</value1>
+	<value2>
+		<polymorphic_id>2147483651</polymorphic_id>
+		<polymorphic_name>DerivedClassA</polymorphic_name>
+		<ptr_wrapper>
+			<id>2147483651</id>
+			<data>
+				<cereal_class_version>1</cereal_class_version>
+				<value0>
+					<value0>5</value0>
+				</value0>
+				<value1>6</value1>
+			</data>
+		</ptr_wrapper>
+	</value2>
 </cereal>
 

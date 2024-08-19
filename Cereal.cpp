@@ -1,15 +1,13 @@
 #include <catch2/catch_all.hpp>
 
-#include <iostream>
-
-
 // Include the polymorphic serialization and registration mechanisms
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/archives/xml.hpp>
 #include <cereal/types/polymorphic.hpp>
 
-#include <iostream>
-#include <fstream>
+#include "fmt/core.h"
+
+import std.compat;
 
 // A pure virtual base class
 struct BaseClass {
@@ -18,6 +16,8 @@ struct BaseClass {
 
 // A class derived from BaseClass
 struct DerivedClassOne : public BaseClass {
+	DerivedClassOne() : x(0) {}
+	DerivedClassOne(int x) : x(x) {}
 	void sayType();
 
 	int x;
@@ -30,6 +30,9 @@ struct DerivedClassOne : public BaseClass {
 
 // Another class derived from BaseClass
 struct EmbarrassingDerivedClass : public BaseClass {
+	EmbarrassingDerivedClass() : BaseClass(), y{} {}
+	EmbarrassingDerivedClass(float y) : BaseClass(), y(y) {}
+
 	void sayType();
 
 	float y;
@@ -37,6 +40,26 @@ struct EmbarrassingDerivedClass : public BaseClass {
 	template<class Archive>
 	void serialize(Archive& ar) {
 		ar(y);
+	}
+};
+
+struct DerivedClassA : public DerivedClassOne {
+	constexpr static uint32_t s_version = 1;
+	DerivedClassA() : DerivedClassOne(), y{} {}
+	DerivedClassA(int x, float y) : DerivedClassOne(x), y(y) {}
+	void sayType();
+	float y;
+
+	template<class Archive>
+	void serialize(Archive& ar, std::uint32_t version) {
+		constexpr static auto sl = std::source_location::current();
+		if constexpr (Archive::is_loading()) {
+			fmt::println("{} loading...", sl.function_name());
+		}
+		else {
+			fmt::println("{} storing...", sl.function_name());
+		}
+		ar(cereal::base_class<DerivedClassOne>(this), y);
 	}
 };
 
@@ -49,6 +72,7 @@ struct EmbarrassingDerivedClass : public BaseClass {
 
 // Register DerivedClassOne
 CEREAL_REGISTER_TYPE(DerivedClassOne);
+CEREAL_REGISTER_TYPE(DerivedClassA)
 
 // Register EmbarassingDerivedClass with a less embarrasing name
 CEREAL_REGISTER_TYPE_WITH_NAME(EmbarrassingDerivedClass, "DerivedClassTwo");
@@ -58,31 +82,58 @@ CEREAL_REGISTER_TYPE_WITH_NAME(EmbarrassingDerivedClass, "DerivedClassTwo");
 //  the relationship (more on this later)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BaseClass, DerivedClassOne)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(BaseClass, EmbarrassingDerivedClass)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(DerivedClassOne, DerivedClassA)
+static_assert(std::is_base_of_v<DerivedClassOne, DerivedClassA>);
 
-
+CEREAL_CLASS_VERSION(DerivedClassA, DerivedClassA::s_version);
 
 
 
 
 void DerivedClassOne::sayType() {
-	std::cout << "DerivedClassOne" << std::endl;
+	fmt::println("DerivedClassOne {}", x);
+}
+
+void DerivedClassA::sayType() {
+	fmt::println("DerivedClassA {} {}", x, y);
 }
 
 void EmbarrassingDerivedClass::sayType() {
-	std::cout << "EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo!" << std::endl;
+	fmt::println("EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo! {} ", y);
 }
 
 
 
 TEST_CASE("Cereal", "[Cereal]") {
 	{
-		std::ofstream os("polymorphism_test.xml");
-		cereal::XMLOutputArchive oarchive(os);
 
 		// Create instances of the derived classes, but only keep base class pointers
-		std::shared_ptr<BaseClass> ptr1 = std::make_shared<DerivedClassOne>();
-		std::shared_ptr<BaseClass> ptr2 = std::make_shared<EmbarrassingDerivedClass>();
-		oarchive(ptr1, ptr2);
+		std::shared_ptr<BaseClass> ptr1 = std::make_shared<DerivedClassOne>(1);
+		std::shared_ptr<BaseClass> ptr2 = std::make_shared<EmbarrassingDerivedClass>(2);
+		std::shared_ptr<BaseClass> ptrA = std::make_shared<DerivedClassA>(5, 6.0f);
+		try {
+			{
+				std::ofstream os("polymorphism_test.xml");
+				cereal::XMLOutputArchive oarchive(os);
+				oarchive(ptr1, ptr2, ptrA);
+			}
+			{
+				std::ofstream os("polymorphism_test.json");
+				cereal::JSONOutputArchive oarchive(os);
+				oarchive(ptr1, ptr2, ptrA);
+			}
+			{
+				std::ofstream os("polymorphism_test.bin");
+				cereal::BinaryOutputArchive oarchive(os);
+				oarchive(ptr1, ptr2, ptrA);
+			}
+		}
+		catch (std::exception& e) {
+			fmt::print("{}", e.what());
+		}
+		catch (...) {
+			fmt::print("Unknown exception");
+		}
 	}
 
 	{
@@ -93,11 +144,49 @@ TEST_CASE("Cereal", "[Cereal]") {
 		// re-instantiated as derived classes
 		std::shared_ptr<BaseClass> ptr1;
 		std::shared_ptr<BaseClass> ptr2;
-		iarchive(ptr1, ptr2);
-
-		// Ta-da! This should output:
-		ptr1->sayType();  // "DerivedClassOne"
-		ptr2->sayType();  // "EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo!"
+		std::shared_ptr<BaseClass> ptrA;
+		{
+			iarchive(ptr1, ptr2, ptrA);
+			// Ta-da! This should output:
+			ptr1->sayType();  // "DerivedClassOne"
+			ptr2->sayType();  // "EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo!"
+			ptrA->sayType();  // "DerivedClassA"
+		}
 	}
 
+	{
+		std::ifstream is("polymorphism_test.json");
+		cereal::JSONInputArchive iarchive(is);
+
+		// De-serialize the data as base class pointers, and watch as they are
+		// re-instantiated as derived classes
+		std::shared_ptr<BaseClass> ptr1;
+		std::shared_ptr<BaseClass> ptr2;
+		std::shared_ptr<BaseClass> ptrA;
+		{
+			iarchive(ptr1, ptr2, ptrA);
+			// Ta-da! This should output:
+			ptr1->sayType();  // "DerivedClassOne"
+			ptr2->sayType();  // "EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo!"
+			ptrA->sayType();  // "DerivedClassA"
+		}
+	}
+
+	{
+		std::ifstream is("polymorphism_test.bin");
+		cereal::BinaryInputArchive iarchive(is);
+
+		// De-serialize the data as base class pointers, and watch as they are
+		// re-instantiated as derived classes
+		std::shared_ptr<BaseClass> ptr1;
+		std::shared_ptr<BaseClass> ptr2;
+		std::shared_ptr<BaseClass> ptrA;
+		{
+			iarchive(ptr1, ptr2, ptrA);
+			// Ta-da! This should output:
+			ptr1->sayType();  // "DerivedClassOne"
+			ptr2->sayType();  // "EmbarrassingDerivedClass. Wait.. I mean DerivedClassTwo!"
+			ptrA->sayType();  // "DerivedClassA"
+		}
+	}
 }
