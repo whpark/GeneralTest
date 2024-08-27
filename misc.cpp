@@ -265,6 +265,20 @@ namespace test {
 
 	}
 
+	TEST_CASE("charset") {
+	#if !defined(__cpp_char8_t) || (__cpp_char8_t >= 202207)
+		std::string str1 = u8"test";
+		std::string str2 = {u8"test"};
+		std::string str3 = u8"test"s;
+	#endif
+		std::u32string str4 = U"sdfasdf";
+		std::u16string str5 = u"sdfasdf";
+	#if (__cpp_char8_t >= 201810)
+		char8_t asd = u8'a';
+		std::u8string str6 = u8"sdfasdf";
+	#endif
+
+	}
 
 	//=============================================================================================================================
 	// https://www.sandordargo.com/blog/2024/03/06/std-filesystem-part2-iterate-over-directories

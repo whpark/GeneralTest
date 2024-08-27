@@ -14,6 +14,25 @@ struct BaseClass {
 	virtual void sayType() = 0;
 };
 
+template < typename T >
+void Func(T&& t) {
+	fmt::print("{}", t);
+	if constexpr (std::is_const_v<std::remove_reference_t<decltype(t)>>) {
+		fmt::print(" is const\n");
+	}
+	else {
+		fmt::print(" is not const\n");
+		t += "sdfsdf";
+	}
+
+	if constexpr (std::is_reference_v<decltype(t)>) {
+		fmt::print(" is reference\n");
+	}
+	else {
+		fmt::print(" is not reference\n");
+	}
+}
+
 // A class derived from BaseClass
 struct DerivedClassOne : public BaseClass {
 	DerivedClassOne() : x(0) {}
@@ -119,6 +138,9 @@ T const* GetAs(TPTR const& ptr) {
 
 TEST_CASE("Cereal", "[Cereal]") {
 	{
+		std::string const str = "Hello, World!";
+		std::string const& str2 = str;
+		Func(str2);
 
 		// Create instances of the derived classes, but only keep base class pointers
 		std::shared_ptr<BaseClass> ptr1 = std::make_shared<DerivedClassOne>(1);
