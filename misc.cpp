@@ -134,6 +134,37 @@ namespace testVirtual {
 
 namespace test {
 
+	template < typename T >
+	void Func(T&& t) {
+		fmt::print("{}", t);
+		if constexpr (std::is_const_v<std::remove_reference_t<decltype(t)>>) {
+			fmt::print(" is const\n");
+		}
+		else {
+			fmt::print(" is not const\n");
+			t += "sdfsdf";
+		}
+	
+		if constexpr (std::is_reference_v<decltype(t)>) {
+			fmt::print(" is reference\n");
+		}
+		else {
+			fmt::print(" is not reference\n");
+		}
+	}
+	TEST_CASE("universal reference") {
+		std::string const str = "Hello, World!";
+		std::string const& str2 = str;
+		Func(str2);
+
+		std::string str3 = "Hello, World!";
+		std::string_view sv(str3);
+		std::span sp(str3);
+		sp[3] = 'a';
+		fmt::print("{}\n", str3);
+
+	}
+
 	struct normal {
 		uint8_t foo;
 		uint32_t bar;
@@ -382,4 +413,84 @@ namespace test {
 
 	//}
 
+	//template < typename T >
+	//class xCRTPBase {
+	//public:
+	//	xCRTPBase(this auto&& self) {
+
+	//	}
+	//};
+
+	//TEST_CASE("deducing this") {
+
+	//}
+
+
+	struct A {
+		int x, y;
+		auto operator <=> (A const&) const = default;
+	};
+
+	TEST_CASE("spaceship") {
+
+		A a{ 100, 150 };
+		A b{ 100, 150 };
+
+		REQUIRE(!(a < b));
+		REQUIRE((a < b) != true);
+
+	}
 }
+	struct __declspec(align(1)) sReturn {
+		char c;
+		int i;
+		int b;
+	};
+	static_assert(sizeof(sReturn) == 12);	// WHY??????????
+	static_assert(offsetof(sReturn, i) == 4);	// WHY??????
+
+#pragma pack(push, 1)
+	struct sReturn2{
+		char c;
+		int i;
+		int b;
+	};
+#pragma pack(pop)
+	static_assert(sizeof(sReturn2) == 9);
+	static_assert(offsetof(sReturn2, i) == 1);
+
+namespace {
+
+	class A {
+	public:
+		int i;
+	protected:
+		int a;
+
+	public:
+		auto operator <=> (A const&) const = default;
+		auto& valueA() { return a; }
+	};
+
+	TEST_CASE("misc1") {
+		A a;
+		a.i = 10;
+		a.valueA() = 20;
+
+		A a2 = a;
+
+		REQUIRE(a == a2);
+		a2.valueA() = 30;
+		REQUIRE(a < a2);
+	}
+
+	struct { int a; int b; } PutSomething(int a, int b) { return { a, b}; };
+	//auto PutSomething2(int a, int b) -> struct sReturn { int a, b;} {
+	//	struct sReturn {
+	//		int a; int b;
+	//	};
+	//	return sReturn{a, b};
+	//};
+
+}
+

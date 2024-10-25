@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cereal.ixx" />
     <ClCompile Include="cereal_templ.cpp" />
     <ClCompile Include="cppfront_test.cpp" />
     <ClCompile Include="EqualityOperator.cpp" />

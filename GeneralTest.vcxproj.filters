@@ -48,6 +48,9 @@
     <ClCompile Include="cereal_templ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cereal.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="cppfront_test.cpp2">

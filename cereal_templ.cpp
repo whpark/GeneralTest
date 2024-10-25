@@ -4,7 +4,7 @@
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>
 
-import std.compat;
+import std;
 
 namespace test {
 

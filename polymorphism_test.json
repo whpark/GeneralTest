@@ -1,11 +1,11 @@
 {
     "value0": {
         "polymorphic_id": 2147483649,
-        "polymorphic_name": "DerivedClassOne",
+        "polymorphic_name": "ct::DerivedClassOne",
         "ptr_wrapper": {
             "id": 2147483649,
             "data": {
-                "value0": 1
+                "X": 1
             }
         }
     },
@@ -21,13 +21,13 @@
     },
     "value2": {
         "polymorphic_id": 2147483651,
-        "polymorphic_name": "DerivedClassA",
+        "polymorphic_name": "ct::DerivedClassA",
         "ptr_wrapper": {
             "id": 2147483651,
             "data": {
                 "cereal_class_version": 1,
                 "value0": {
-                    "value0": 5
+                    "X": 5
                 },
                 "value1": 6.0
             }

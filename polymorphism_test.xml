@@ -2,11 +2,11 @@
 <cereal>
 	<value0>
 		<polymorphic_id>2147483649</polymorphic_id>
-		<polymorphic_name>DerivedClassOne</polymorphic_name>
+		<polymorphic_name>ct::DerivedClassOne</polymorphic_name>
 		<ptr_wrapper>
 			<id>2147483649</id>
 			<data>
-				<value0>1</value0>
+				<X>1</X>
 			</data>
 		</ptr_wrapper>
 	</value0>
@@ -22,13 +22,13 @@
 	</value1>
 	<value2>
 		<polymorphic_id>2147483651</polymorphic_id>
-		<polymorphic_name>DerivedClassA</polymorphic_name>
+		<polymorphic_name>ct::DerivedClassA</polymorphic_name>
 		<ptr_wrapper>
 			<id>2147483651</id>
 			<data>
 				<cereal_class_version>1</cereal_class_version>
 				<value0>
-					<value0>5</value0>
+					<X>5</X>
 				</value0>
 				<value1>6</value1>
 			</data>
