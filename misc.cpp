@@ -494,3 +494,76 @@ namespace {
 
 }
 
+namespace {
+
+#if 0
+	TEST_CASE("istream") {
+		{
+			std::string str;
+			str.assign(512*1024, 0);
+			for (size_t i{}; i < str.size(); i++) {
+				str[i] = 'a' + i % 27;
+				if (i%27 == 0)
+					str[i] = '\n';
+			}
+			std::ofstream f("\\test.txt", std::ios_base::binary);
+			f.write(str.data(), str.size());
+		}
+		std::ifstream f("\\test.txt", std::ios_base::binary);
+		f.seekg(0, std::ios_base::end);
+		auto len = f.tellg();
+		REQUIRE(len > 0);
+		f.seekg(0);
+		std::string str;
+		str.reserve(len);
+		do {
+			std::string buf;
+			buf.assign(80, 0);
+			if (auto read = f.readsome(buf.data(), buf.size()); read > 0) {
+				buf.resize(read);
+				str += buf;
+			}
+			else
+				break;
+		} while (!f.eof());
+
+		while (!str.empty()) {
+			f.putback(str.back());
+			REQUIRE(f.get() == str.back());
+			f.putback(str.back());
+			str.pop_back();
+		}
+		REQUIRE(true);
+
+	}
+#endif
+
+}
+
+namespace {
+
+	TEST_CASE("infinity") {
+		SECTION("double") {
+			double d = DBL_MAX/DBL_MIN;
+			REQUIRE(std::isinf(d));
+			REQUIRE(d > 0);
+			REQUIRE(!(d < 0));
+			d = -d;
+			REQUIRE(std::isinf(d));
+			REQUIRE(d < 0);
+			REQUIRE(!(d > 0));
+		}
+
+		SECTION("float") {
+			float f = std::numeric_limits<float>::infinity();
+			REQUIRE(std::isinf(f));
+			REQUIRE(f > 0);
+			REQUIRE(!(f < 0));
+			f = -f;
+			REQUIRE(std::isinf(f));
+			REQUIRE(f < 0);
+			REQUIRE(!(f > 0));
+		}
+	}
+
+}
