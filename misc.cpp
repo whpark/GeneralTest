@@ -1,18 +1,12 @@
-#include <vector>
-#include <algorithm>
-#include <fstream>
-#include <string>
-#include <filesystem>
-#include <ranges>
 #include <fmt/core.h>
 #include <fmt/xchar.h>
 #include <fmt/chrono.h>
-#include <thread>
 
 #include <catch.hpp>
-
 #include <boost/endian.hpp>
 #include <lzma.h>
+
+import std;
 
 using namespace std::literals;
 
@@ -502,8 +496,10 @@ namespace {
 			std::string str;
 			str.assign(512*1024, 0);
 			for (size_t i{}; i < str.size(); i++) {
-				str[i] = 'a' + i % 27;
-				if (i%27 == 0)
+				str[i] = 'a' + (i % 28);
+				if (i%28 == 26)
+					str[i] = '\r';
+				if (i%28 == 27)
 					str[i] = '\n';
 			}
 			std::ofstream f("\\test.txt", std::ios_base::binary);
@@ -519,6 +515,7 @@ namespace {
 		do {
 			std::string buf;
 			buf.assign(80, 0);
+			
 			if (auto read = f.readsome(buf.data(), buf.size()); read > 0) {
 				buf.resize(read);
 				str += buf;
@@ -564,6 +561,207 @@ namespace {
 			REQUIRE(f < 0);
 			REQUIRE(!(f > 0));
 		}
+	}
+
+}
+
+namespace test_copy_class {
+
+	class A {
+	private:
+		std::string str;
+	public:
+		int a{};
+
+		A() = default;
+		//A(A const& ) = default;
+		//A(A&&) = default;
+		//A& operator=(A const&) = default;
+		//A& operator=(A&&) = default;
+		//virtual ~A() = default; 
+		A(std::string, int) {}
+		auto operator <=> (A const&) const = default;
+
+		virtual void SetPrivate(std::string str) {
+			this->str = std::move(str);
+		}
+		std::string const& GetString() const {
+			return str;
+		}
+
+	};
+
+	TEST_CASE("copy_class") {
+		A a1, a2;
+		a1.SetPrivate("Hello, World!, long string .................................... ");	// prevent SSO
+		a2 = a1;
+
+		REQUIRE(a1.GetString() == a2.GetString());
+		REQUIRE(a1 == a2);
+
+		a2.SetPrivate("merong");
+		REQUIRE(a1 != a2);
+
+		a2 = std::move(a1);
+		REQUIRE(a1.GetString() == "");
+	}
+
+}
+
+namespace {
+
+	TEST_CASE("SSO test") {
+		std::string str1 = "1";
+		std::string str2 = std::move(str1);
+		REQUIRE(str1.empty());
+		REQUIRE(str2 == "1");
+		std::vector<int> v;
+	}
+
+	TEST_CASE("variant") {
+		std::variant<int, std::string, double> v;
+		REQUIRE(v.index() == 0);
+		v.emplace<int>(10);
+		v.emplace<std::string>("Hello, World!");
+		std::get<std::string>(v).clear();
+		REQUIRE(std::get<std::string>(v).empty());
+	}
+
+}
+
+namespace memroy {
+
+	template < typename T >
+	struct TCloner {
+		std::unique_ptr<T> operator () (T const& self) const { return self.clone(); }
+	};
+	template < typename T >
+	struct TStaticCloner {
+		std::unique_ptr<T> operator () (T const& self) const { return std::make_unique<T>(self); }
+	};
+
+	template < /*concepts::cloneable */typename T, class CLONE = TCloner<T> >
+	class TCloneablePtr : public std::unique_ptr<T> {
+	public:
+		using base_t = std::unique_ptr<T>;
+		using this_t = TCloneablePtr;
+
+		using base_t::base_t;
+		//TCloneablePtr(this_t&& other) : base_t(std::move(other)) {}
+		using base_t::operator =;
+		using base_t::operator *;
+		using base_t::operator ->;
+		using base_t::operator bool;
+
+		static inline CLONE cloner;
+
+		TCloneablePtr(std::unique_ptr<T>&& other) : base_t(std::move(other)) {}
+		TCloneablePtr(this_t&& other) : base_t(std::move(other)) {}
+		// copy constructor
+		TCloneablePtr(std::unique_ptr<T> const& other) : base_t(other ? cloner(*other) : nullptr) {}
+		TCloneablePtr(this_t const& other) : base_t(other ? cloner(*other) : nullptr) {}
+
+		TCloneablePtr& operator = (std::unique_ptr<T>&& other) { base_t::operator = (std::move(other)); return *this; }
+		TCloneablePtr& operator = (this_t&& other) { base_t::operator = (std::move(other)); return *this; }
+		TCloneablePtr& operator = (std::unique_ptr<T> const& other) { base_t::operator = (cloner(*other)); return *this; }
+		TCloneablePtr& operator = (this_t const& other) { base_t::operator = (cloner(*other)); return *this; }
+
+		template < typename U, class CLONE2 >
+		TCloneablePtr& operator = (TCloneablePtr<U, CLONE2>&& other) {
+			reset(other.release());
+			return*this;
+		}
+		template < typename U, class CLONE2 >
+		TCloneablePtr& operator = (TCloneablePtr<U, CLONE2> const& other) {
+			static CLONE2 cloner2;
+			this->reset(other ? cloner2(*other).release() : nullptr);
+			return*this;
+		}
+	};
+
+	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
+	bool operator == (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
+		bool bEmptyA = !a;
+		bool bEmptyB = !b;
+		if (bEmptyA and bEmptyB) return true;
+		else if (bEmptyA or bEmptyB) return false;
+		return *a == *b;
+	}
+	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
+	bool operator != (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
+		return !(a == b);
+	}
+	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
+	bool operator < (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
+		bool bEmptyA = !a;
+		bool bEmptyB = !b;
+		if (bEmptyA and bEmptyB) return false;
+		else if (bEmptyA) return true;
+		else if (bEmptyB) return false;
+		return *a < *b;
+	}
+	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
+	bool operator > (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
+		return b < a;
+	}
+	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
+	bool operator <= (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
+		return a == b or a < b;
+	}
+	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
+	bool operator >= (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
+		return b <= a;
+	}
+
+	class aaa { 
+	public:
+		int i, k;
+	public:
+		virtual std::unique_ptr<aaa> clone() const {
+			return std::make_unique<aaa>(*this);
+		}
+		std::unique_ptr<aaa> cloneSelf() const {
+			return std::make_unique<aaa>(*this);
+		}
+
+		auto operator <=> (aaa const&) const = default;
+	};
+	class bbb : public aaa { 
+	public:
+		virtual std::unique_ptr<aaa> clone() const {
+			return std::make_unique<bbb>(*this);
+		}
+		static std::unique_ptr<bbb> cloneSelf(bbb const& self) {
+			return std::make_unique<bbb>(self);
+		}
+
+		auto operator <=> (bbb const&) const = default;
+	};
+
+	TEST_CASE("cloneable") {
+		TCloneablePtr<aaa> a = std::make_unique<aaa>();
+		a->i = 42;
+		a->k = 20;
+		TCloneablePtr<aaa> a2 = a;
+		REQUIRE(a == a2);
+		//TCloneablePtr<aaa, decltype(&aaa::cloneSelf)> a3 = a2;
+		TCloneablePtr<aaa> a4 = std::move(a);
+		REQUIRE(a4 != a);
+		REQUIRE(a4 == a2);
+
+		struct cloner {
+			std::unique_ptr<bbb> operator () (bbb const& self) {
+				return bbb::cloneSelf(self);
+			}
+		};
+		TCloneablePtr<bbb, cloner> b;
+		b = std::make_unique<bbb>();
+		TCloneablePtr<bbb, TStaticCloner<bbb>> b2 = b;
+		//TCloneablePtr<bbb, TCloner<bbb>> b4 = b2;
+		TCloneablePtr<bbb, TStaticCloner<bbb>> b5 = b2;
+		TCloneablePtr<aaa, decltype([](auto const& self) { return std::make_unique<aaa>(self); })> a5 = std::make_unique<bbb>();
+		TCloneablePtr<aaa> a6 = a5;
+		//b = a;
 	}
 
 }
