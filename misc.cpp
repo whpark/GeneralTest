@@ -618,6 +618,12 @@ namespace {
 		std::vector<int> v;
 	}
 
+	void FuncVariant(std::variant<int, double, std::string> param) {
+		std::visit([](auto&& arg) {
+			std::println("FuncVariant: {}", arg);
+		}, param);
+	}
+
 	TEST_CASE("variant") {
 		std::variant<int, std::string, double> v;
 		REQUIRE(v.index() == 0);
@@ -625,11 +631,31 @@ namespace {
 		v.emplace<std::string>("Hello, World!");
 		std::get<std::string>(v).clear();
 		REQUIRE(std::get<std::string>(v).empty());
+
+		v.emplace<double>(3.14);
+		v.emplace<double>(3.15);
+		REQUIRE(std::get<double>(v) == 3.15);
+
+		std::string str{"bbb"};
+		FuncVariant(std::move(str));
+		REQUIRE(str.empty());
+		int a{3};
+		FuncVariant(a);
+		REQUIRE(a == 3);
+
+		//std::variant<int, std::string> v;
+		//REQUIRE(v.index() == 0);
+		//v.emplace<std::string>("Hello, World!");
+		//REQUIRE(v.index() == 1);
+		//REQUIRE(std::get<std::string>(v) == "Hello, World!");
+		//v.emplace<int>(10);
+		//REQUIRE(v.index() == 0);
+		//REQUIRE(std::get<int>(v) == 10);
 	}
 
 }
 
-namespace memroy {
+namespace memory {
 
 	template < typename T >
 	struct TCloner {
@@ -763,5 +789,49 @@ namespace memroy {
 		TCloneablePtr<aaa> a6 = a5;
 		//b = a;
 	}
+
+}
+
+
+namespace destructors {
+	class elem {
+	public:
+		std::string name;
+	public:
+		elem(std::string name) : name(std::move(name)) { fmt::print("elem::elem({})\n", name); }
+		~elem() { fmt::print("elem::~elem({})\n", name); };
+	};
+
+	class A {
+	public:
+		A() { fmt::print("A::A()\n"); }
+		virtual ~A() { fmt::print("A::~A()\n"); }
+	};
+	class B : public A {
+	public:
+		B() { fmt::print("B::B()\n"); }
+		~B() { fmt::print("B::~B()\n"); }
+	};
+	class Ci : public B {
+	public:
+		elem e{"Ci"s};
+		Ci() { fmt::print("Ci::Ci()\n"); }
+		~Ci() { fmt::print("Ci::~Ci()\n"); }
+	};
+	class Ce : public B {
+	public:
+		elem e{"Ce"s};
+		Ce();
+		~Ce();
+	};
+
+	TEST_CASE("destructors") {
+		std::unique_ptr<A> c1 = std::make_unique<Ci>();
+		std::unique_ptr<A> c2 = std::make_unique<Ce>();
+
+	}
+
+	Ce::Ce() { fmt::print("Ce::Ce()\n"); }
+	Ce::~Ce() { fmt::print("Ce::~Ce()\n"); }
 
 }
