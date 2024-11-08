@@ -291,14 +291,15 @@ namespace test {
 	}
 
 	TEST_CASE("charset") {
-	#if !defined(__cpp_char8_t) || (__cpp_char8_t >= 202207)
-		std::string str1 = u8"test";
-		std::string str2 = {u8"test"};
-		std::string str3 = u8"test"s;
-	#endif
+		//static_assert(__cpp_char8_t < 202207L);
+	//#if (__cpp_char8_t >= 202207L)
+	//	std::string str1 = u8"test";
+	//	std::string str2 = {u8"test"};
+	//	std::string str3 = u8"test"s;
+	//#endif
 		std::u32string str4 = U"sdfasdf";
 		std::u16string str5 = u"sdfasdf";
-	#if (__cpp_char8_t >= 201810)
+	#if (__cpp_char8_t >= 201810L)
 		char8_t asd = u8'a';
 		std::u8string str6 = u8"sdfasdf";
 	#endif

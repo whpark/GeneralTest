@@ -1,0 +1,12 @@
+{
+  "dependencies": [
+    "boost-pfr",
+    "catch2",
+    "cereal",
+    "fmt",
+    "foonathan-lexy",
+    "glaze",
+    "liblzma",
+    "boost-endian"
+  ]
+}
