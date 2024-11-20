@@ -1,4 +1,4 @@
-#include <fmt/core.h>
+﻿#include <fmt/core.h>
 #include <fmt/xchar.h>
 #include <fmt/chrono.h>
 
@@ -836,3 +836,88 @@ namespace destructors {
 	Ce::~Ce() { fmt::print("Ce::~Ce()\n"); }
 
 }
+
+namespace multi_inherence {
+	class A {
+	public:
+		int a;
+	};
+	class B {
+	public:
+		int b;
+	};
+
+	class C : public A, public B {
+	public:
+		int c;
+
+		A& getA() { return *this; }
+		B& getB() { return *this; }
+	};
+
+	TEST_CASE("multi_inherence") {
+		C c;
+		c.getA().a = 10;
+		c.getB().b = 20;
+		c.c = 30;
+
+		SECTION("ref1") {
+			void* ptA = &c.getA();
+			void* ptB = &c.getB();
+			REQUIRE(ptA != ptB);
+			C* pCa = (C*)ptA;
+			C* pCb = (C*)ptB;
+			REQUIRE(pCa == &c);
+			REQUIRE(pCb != &c);
+			REQUIRE(pCa != pCb);
+		}
+		SECTION("ref2") {
+			A* ptA = &c.getA();
+			B* ptB = &c.getB();
+			REQUIRE((void*)ptA != (void*)ptB);
+			C* pCa = (C*)ptA;
+			C* pCb = (C*)ptB;
+			REQUIRE(pCa == &c);
+			REQUIRE(pCb == &c);
+			REQUIRE(pCa == pCb);
+		}
+
+
+		SECTION("static_cast") {
+			A* pA = static_cast<A*>(&c);
+			B* pB = static_cast<B*>(&c);
+			REQUIRE((void*)pA != (void*)pB);
+			C* pCa = static_cast<C*>(pA);
+			C* pCb = static_cast<C*>(pB);
+			REQUIRE(pCa == &c);
+			REQUIRE(pCb == &c);
+			REQUIRE(pCa == pCb);
+		}
+
+		SECTION("dynamic_down_cast") {
+			A* pA = dynamic_cast<A*>(&c);
+			B* pB = dynamic_cast<B*>(&c);
+			REQUIRE((void*)pA != (void*)pB);
+			C* pCa = static_cast<C*>(pA);
+			C* pCb = static_cast<C*>(pB);
+			REQUIRE(pCa == &c);
+			REQUIRE(pCb == &c);
+			REQUIRE(pCa == pCb);
+		}
+
+		SECTION("aa") {
+			void* ptA = &c.getA();
+			void* ptB = &c.getB();
+			REQUIRE(ptA != ptB);
+
+			C* pCa = static_cast<C*>(ptA);
+			C* pCb = static_cast<C*>(ptB);
+			REQUIRE(pCa == &c);
+			REQUIRE(pCb != &c);
+			REQUIRE(pCa != pCb);
+		}
+
+	}
+
+};
+
