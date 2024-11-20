@@ -840,16 +840,18 @@ namespace destructors {
 namespace multi_inherence {
 	class A {
 	public:
-		int a;
+		int i;
+		int same_name;
 	};
 	class B {
 	public:
-		int b;
+		int j;
+		int same_name;
 	};
 
 	class C : public A, public B {
 	public:
-		int c;
+		int same_name;
 
 		A& getA() { return *this; }
 		B& getB() { return *this; }
@@ -857,9 +859,11 @@ namespace multi_inherence {
 
 	TEST_CASE("multi_inherence") {
 		C c;
-		c.getA().a = 10;
-		c.getB().b = 20;
-		c.c = 30;
+		c.getA().i = 10;
+		c.getB().j = 20;
+		c.A::same_name = 1;
+		c.B::same_name = 2;
+		c.C::same_name = 3;
 
 		SECTION("ref1") {
 			void* ptA = &c.getA();
@@ -889,6 +893,8 @@ namespace multi_inherence {
 			REQUIRE((void*)pA != (void*)pB);
 			C* pCa = static_cast<C*>(pA);
 			C* pCb = static_cast<C*>(pB);
+			pCa->A::same_name = 10;
+			pCb->B::same_name = 20;
 			REQUIRE(pCa == &c);
 			REQUIRE(pCb == &c);
 			REQUIRE(pCa == pCb);
