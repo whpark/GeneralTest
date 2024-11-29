@@ -21,8 +21,8 @@ namespace testPFR {
 	};
 
 	TEST_CASE("pfr", "[pfr]") {
-		A a{ 1, 2.0f };
-		B b{ {3, 4.0f}/*, 5.0*/ };
+		A a{1, 2.0f};
+		B b{{3, 4.0f}/*, 5.0*/};
 		REQUIRE(boost::pfr::get<0>(a) == 1);
 		REQUIRE(boost::pfr::get<1>(a) == 2.0f);
 		//REQUIRE(boost::pfr::get<0>(b) == 3);
@@ -138,7 +138,7 @@ namespace test {
 			fmt::print(" is not const\n");
 			t += "sdfsdf";
 		}
-	
+
 		if constexpr (std::is_reference_v<decltype(t)>) {
 			fmt::print(" is reference\n");
 		}
@@ -177,13 +177,13 @@ namespace test {
 		REQUIRE(j == 43);
 		REQUIRE(i == 43);
 
-		std::vector<int> data{ 8, 1, 9, 2, 7, 3, 6, 4, 5 };
+		std::vector<int> data{8, 1, 9, 2, 7, 3, 6, 4, 5};
 		std::nth_element(data.begin(), data.begin() + 4, data.end());
 		REQUIRE(data[4] == 5);
 		//std::cout << "data[4] == " << data[4] << "\n";
 
 		std::nth_element(data.begin(), data.begin() + 7, data.end(),
-						 std::greater<>());
+			std::greater<>());
 		REQUIRE(data[7] == 2);
 		//std::cout << "data[7] == " << data[7] << "\n";
 	}
@@ -258,7 +258,7 @@ namespace test {
 
 		//constexpr auto strW = TStringLiteral<wchar_t, strA>{};
 		constexpr auto strW = TStringLiteral<wchar_t, "Hello World!"_lit>{};
-		static std::wstring const str2 (L"Hello World!");
+		static std::wstring const str2(L"Hello World!");
 		REQUIRE(str2 == strW.value);
 		REQUIRE(str2 == L"Hello World!");
 		fmt::print(L"str: {}\n", strW.value);
@@ -311,7 +311,7 @@ namespace test {
 	void iterateOverDirectory(const std::filesystem::path& root) {
 		if (!exists(root))
 			return;
-		std::array<std::string, 2> allowed_extensions {".h", ".cpp"};
+		std::array<std::string, 2> allowed_extensions{".h", ".cpp"};
 
 		auto const end = std::filesystem::recursive_directory_iterator();
 		for (auto entry = std::filesystem::recursive_directory_iterator(root); entry != end; ++entry) {
@@ -428,31 +428,31 @@ namespace test {
 
 	TEST_CASE("spaceship") {
 
-		A a{ 100, 150 };
-		A b{ 100, 150 };
+		A a{100, 150};
+		A b{100, 150};
 
 		REQUIRE(!(a < b));
 		REQUIRE((a < b) != true);
 
 	}
 }
-	struct __declspec(align(1)) sReturn {
-		char c;
-		int i;
-		int b;
-	};
-	static_assert(sizeof(sReturn) == 12);	// WHY??????????
-	static_assert(offsetof(sReturn, i) == 4);	// WHY??????
+struct __declspec(align(1)) sReturn {
+	char c;
+	int i;
+	int b;
+};
+static_assert(sizeof(sReturn) == 12);	// WHY??????????
+static_assert(offsetof(sReturn, i) == 4);	// WHY??????
 
 #pragma pack(push, 1)
-	struct sReturn2{
-		char c;
-		int i;
-		int b;
-	};
+struct sReturn2 {
+	char c;
+	int i;
+	int b;
+};
 #pragma pack(pop)
-	static_assert(sizeof(sReturn2) == 9);
-	static_assert(offsetof(sReturn2, i) == 1);
+static_assert(sizeof(sReturn2) == 9);
+static_assert(offsetof(sReturn2, i) == 1);
 
 namespace {
 
@@ -479,7 +479,7 @@ namespace {
 		REQUIRE(a < a2);
 	}
 
-	struct { int a; int b; } PutSomething(int a, int b) { return { a, b}; };
+	struct { int a; int b; } PutSomething(int a, int b) { return {a, b}; };
 	//auto PutSomething2(int a, int b) -> struct sReturn { int a, b;} {
 	//	struct sReturn {
 	//		int a; int b;
@@ -516,7 +516,7 @@ namespace {
 		do {
 			std::string buf;
 			buf.assign(80, 0);
-			
+
 			if (auto read = f.readsome(buf.data(), buf.size()); read > 0) {
 				buf.resize(read);
 				str += buf;
@@ -740,7 +740,7 @@ namespace memory {
 		return b <= a;
 	}
 
-	class aaa { 
+	class aaa {
 	public:
 		int i, k;
 	public:
@@ -753,7 +753,7 @@ namespace memory {
 
 		auto operator <=> (aaa const&) const = default;
 	};
-	class bbb : public aaa { 
+	class bbb : public aaa {
 	public:
 		virtual std::unique_ptr<aaa> clone() const {
 			return std::make_unique<bbb>(*this);
@@ -927,3 +927,27 @@ namespace multi_inherence {
 
 };
 
+//namespace test {
+//
+//	struct s {
+//		s(int x);
+//		//: x(x) {
+//		//	vec.push_back(*this);
+//		//}
+//		int x;
+//	};
+//	std::vector<s> vec;
+//	s::s(int x) : x(x) {
+//		vec.push_back(*this);
+//	}
+//	inline s a = s(100);
+//	inline s b = s(200);
+//	inline s c = s(300);
+//	inline s d = s(400);
+//	inline s e = s(500);
+//	inline s f = s(600);
+//
+//	TEST_CASE("static fiasco") {
+//	}
+//}
+//
