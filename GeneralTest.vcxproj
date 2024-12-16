@@ -176,6 +176,7 @@
   <ItemGroup>
     <ClCompile Include="Cereal.ixx" />
     <ClCompile Include="cereal_templ.cpp" />
+    <ClCompile Include="constexpr_counter.ixx" />
     <ClCompile Include="cppfront_test.cpp" />
     <ClCompile Include="EqualityOperator.cpp" />
     <ClCompile Include="GeneralTest.cpp" />
