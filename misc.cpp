@@ -128,6 +128,24 @@ namespace testVirtual {
 
 namespace test {
 
+	struct sTest {
+		int x{};
+		std::string str;
+
+		auto GetX() const { return x; }
+		auto GetStr() const { return str; }
+
+	};
+
+	TEST_CASE("projected") {
+		std::vector<sTest> lst{ {1, "one"}, {2, "two"}, {3, "three"} };
+		auto iter1 = std::ranges::find(lst, 2, &sTest::x);
+		REQUIRE(iter1->str == "two");
+		auto iter2 = std::ranges::find(lst, "three", &sTest::GetStr);
+		REQUIRE(iter2->x == 3);
+
+	}
+
 	template < typename T >
 	void Func(T&& t) {
 		fmt::print("{}", t);
