@@ -21,6 +21,9 @@ namespace testPFR {
 	};
 
 	TEST_CASE("pfr", "[pfr]") {
+		int k = -1;
+		fmt::println("k:{}, k/3:{}", k, k/3);
+		fmt::println("(k-3+1)/3:{}", (k-3+1)/3);
 		A a{1, 2.0f};
 		B b{{3, 4.0f}/*, 5.0*/};
 		REQUIRE(boost::pfr::get<0>(a) == 1);

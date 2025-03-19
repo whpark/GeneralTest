@@ -33,9 +33,6 @@
     <ClCompile Include="SRWLock.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cppfront_test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Cereal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -54,19 +51,9 @@
     <ClCompile Include="constexpr_counter.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="cppfront_test.cpp2">
+    <ClCompile Include="tests.cpp">
       <Filter>Source Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="cppfront_test.h2">
-      <Filter>Source Files</Filter>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="cppfront_test.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
