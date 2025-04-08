@@ -7,7 +7,7 @@ export module leveldb;
 
 import std;
 
-export {
+namespace test {
 
 	TEST_CASE("leveldb") {
 

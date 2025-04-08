@@ -33,6 +33,8 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+/testdb/
+
 # vcpkg installed
 /vcpkg_installed
 
