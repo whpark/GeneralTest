@@ -4,13 +4,13 @@
 
 #include <catch.hpp>
 #include <boost/endian.hpp>
+#include "boost/pfr.hpp"
 #include <lzma.h>
 
 import std;
 
 using namespace std::literals;
 
-#include "boost/pfr.hpp"
 namespace testPFR {
 	struct A {
 		int x;
