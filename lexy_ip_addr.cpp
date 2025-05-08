@@ -246,7 +246,7 @@ TEST_CASE("ip_addr", "[LEXY]") {
     // Scan the IP address provided at the commandline.
     lexy::string_input input("1.2.3.4   "sv);
     //lexy:: input;
-    auto             result = lexy::parse<grammar::ip_address>(input, lexy_ext::report_error);
+    auto result = lexy::parse<grammar::ip_address>(input, lexy_ext::report_error);
     REQUIRE(result.has_value());
 
     auto value = result.value();
