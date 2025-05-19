@@ -177,6 +177,7 @@
     <ClCompile Include="Cereal.ixx" />
     <ClCompile Include="cereal_templ.cpp" />
     <ClCompile Include="constexpr_counter.ixx" />
+    <ClCompile Include="crtp.ixx" />
     <ClCompile Include="EqualityOperator.cpp" />
     <ClCompile Include="GeneralTest.cpp" />
     <ClCompile Include="Json.cpp" />
