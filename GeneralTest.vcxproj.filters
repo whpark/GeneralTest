@@ -60,6 +60,9 @@
     <ClCompile Include="crtp.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="reflection.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

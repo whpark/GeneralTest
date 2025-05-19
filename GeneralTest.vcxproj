@@ -185,6 +185,7 @@
     <ClCompile Include="lexy_ip_addr.cpp" />
     <ClCompile Include="lexy_calculator.cpp" />
     <ClCompile Include="misc.cpp" />
+    <ClCompile Include="reflection.ixx" />
     <ClCompile Include="SRWLock.ixx" />
     <ClCompile Include="Cereal.cpp" />
     <ClCompile Include="tests.cpp" />
