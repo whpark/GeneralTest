@@ -972,3 +972,60 @@ namespace multi_inherence {
 //	}
 //}
 //
+
+namespace test {
+
+	template < typename T, size_t N >
+	class ArrayView;
+
+	template < typename T, size_t N >
+	class Array {
+	public:
+		using array_t = Array;
+		using data_t = T;
+		constexpr static inline size_t size() { return N; }
+	public:
+		std::array<T, N> m_array{};
+		ArrayView<T, N> View() const;
+	};
+
+	template < typename T, size_t N >
+	class ArrayView {
+	public:
+		std::span<T const, N> m_span;
+
+		ArrayView() = default;
+		ArrayView(ArrayView const&) = default;
+		ArrayView(ArrayView&&) = default;
+		ArrayView& operator=(ArrayView const&) = default;
+		ArrayView& operator=(ArrayView&&) = default;
+		ArrayView(Array<T, N> const& arr) : m_span(arr.m_array) {}
+	};
+
+	template < typename T, size_t N >
+	ArrayView<T, N> Array<T, N>::View() const {
+		return ArrayView<T, N>(*this);
+	}
+
+	template < typename T, size_t N >
+	Array<T, N> Multiply(ArrayView<T, N> a_, ArrayView<T, N> b_) {
+		Array<T, N> arr{};
+		ArrayView<T, N> a = a_, b = b_;
+		for (size_t i = 0; i < N; ++i) {
+			arr.m_array[i] = a.m_span[i] * b.m_span[i];
+		}
+		return arr;
+	}
+
+	//template < typename TArray >
+	//MultiPly(TArray a, TArray b) -> MultiPly<typename TArray::data_t, TArray::size()>;
+
+	TEST_CASE("mul", "view") {
+
+		Array<int, 3> a1;
+		Array<int, 3> a2;
+
+		auto a3 = Multiply(a1.View(), a2.View());
+	}
+
+}
