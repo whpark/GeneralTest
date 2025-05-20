@@ -63,6 +63,15 @@
     <ClCompile Include="reflection.ixx">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="module_test_a1.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="module_test_a2.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="module_test.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
