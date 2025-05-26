@@ -462,7 +462,7 @@ struct __declspec(align(1)) sReturn {
 	int i;
 	int b;
 };
-static_assert(sizeof(sReturn) == 12);	// WHY??????????
+static_assert(sizeof(sReturn) == 12);	// WHY?????????? -> only larger values valid
 static_assert(offsetof(sReturn, i) == 4);	// WHY??????
 
 #pragma pack(push, 1)
@@ -1027,5 +1027,182 @@ namespace test {
 
 		auto a3 = Multiply(a1.View(), a2.View());
 	}
+
+}
+
+namespace test20250520 {
+
+	class sClass1 {
+	public:
+		int a;
+		int b;
+
+		int sClass1::* which {&sClass1::a};
+	};
+
+	template < typename T, typename T2, T2 T::* offset >
+	void Func(T a) {
+
+	}
+
+	TEST_CASE("offset") {
+		sClass1 s1;
+
+		auto offset = &sClass1::a;
+		int sClass1::* k = &sClass1::b;
+		auto name = typeid(decltype(offset)).name();
+		std::println("sClass1::a --> {}", typeid(decltype(offset)).name());
+
+		s1.*offset = 3;
+		s1.which = k;
+		s1.*s1.which = 10;
+		REQUIRE(s1.a == 3);
+		REQUIRE(s1.b == 10);
+
+		Func<sClass1, int, &sClass1::a>(s1);
+	}
+
+
+	struct base {
+		bool a = false;
+	};
+
+	struct config : base {
+		bool b = false;
+	};
+
+	template <auto Config, auto member_ptr>
+	constexpr auto make_true() {
+		auto ret = Config;
+		ret.*member_ptr = true;
+		return ret;
+	}
+
+	//static constexpr auto x = make_true<config{}, &config::a>();
+}
+
+namespace test_MSVC_static {
+
+	class IBase {
+	public:
+		virtual ~IBase() = default;
+		virtual void foo() = 0;
+		//inline static std::map<std::string, std::function<std::unique_ptr<IBase>()>> map;
+		static auto& GetMap() {
+			static std::map<std::string, std::function<std::unique_ptr<IBase>()>> map;
+			return map;
+		}
+		struct sRegister {
+			sRegister(std::string const& name, std::function<std::unique_ptr<IBase>()> creator) {
+				GetMap()[name] = std::move(creator);
+			}
+		};
+	};
+
+	template < class T >
+	class TDerived : public IBase {
+	public:
+		T a{};
+
+		void foo() override {};
+
+		inline static sRegister reg{"derived", [] { return std::make_unique<TDerived>(); } };
+	};
+
+	class xDerived : public TDerived<int> {
+	public:
+	};
+
+	TEST_CASE("static init order") {
+
+		struct {
+			int a{5};
+			int b{42};
+		} st;
+		auto* ptr = &st;
+
+		if (auto* entity = (xDerived*)(ptr))
+			fmt::println("a:{}", entity->a);
+
+	}
+
+}
+
+namespace test_20250522 {
+
+	class xBase {
+	public:
+		int a{};
+		double b{};
+		std::string c;
+
+		auto operator <=> (xBase const&) const = default;
+	};
+
+	template < typename TSelf >
+	class TTest : public xBase {
+	public:
+		using self_t = TSelf;
+
+		auto operator <=> (TTest const&) const = default;
+
+		bool Compare(this auto&& self) {
+			return true;
+		}
+	};
+
+	class xDerived : public TTest<xDerived> {
+	public:
+
+		auto operator <=> (xDerived const&) const = default;
+	};
+
+	TEST_CASE("auto ") {
+
+		xDerived a, b;
+		REQUIRE(a.Compare());
+
+	}
+
+
+}
+
+namespace test_20250523 {
+
+	TEST_CASE("ranges") {
+		{
+			auto to_upper = [] (unsigned char c) { return std::toupper(c); };
+			std::string s = "foobar";
+
+			/* this has always been possible; v_indiri depends on s */
+			auto v_indiri = s | std::views::transform(to_upper);
+
+			fmt::println("s : {}", s);
+
+			/* this is "new"; v_owning is standalone */
+			auto v_owning = std::move(s) | std::views::transform(to_upper);
+
+			fmt::println("typename v_owning: {}", typeid(v_owning).name());
+			fmt::println("contents of v_owning: {}", std::string(v_owning.begin(), v_owning.end()));
+			fmt::println("s : {}", s);
+
+
+		}
+
+		{
+				/* Finding the smallest non-negative number in a vector */
+			std::vector vec{-1, 2, -3, 1, 7};
+			auto non_neg = [](int i) { return i >= 0; };
+
+			//auto it1 = std::ranges::min_element(vec | std::views::filter(non_neg));
+			//REQUIRE(*it1 == 1);   // broken, because filter_view is never borrowed
+
+			//auto non_negative_vec = vec | std::ranges::views::filter(non_neg);
+			//auto it2 = std::ranges::min_element(non_negative_vec);
+			//REQUIRE(*it2 == 1); // now it should work correctly
+
+		}
+	}
+
 
 }
