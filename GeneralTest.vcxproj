@@ -188,6 +188,7 @@
     <ClCompile Include="module_test.ixx" />
     <ClCompile Include="module_test_a1.ixx" />
     <ClCompile Include="module_test_a2.ixx" />
+    <ClCompile Include="poly.cpp" />
     <ClCompile Include="reflection.ixx" />
     <ClCompile Include="SRWLock.ixx" />
     <ClCompile Include="Cereal.cpp" />
