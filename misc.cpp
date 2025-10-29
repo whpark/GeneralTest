@@ -7,9 +7,24 @@
 #include "boost/pfr.hpp"
 #include <lzma.h>
 
+#include <units.h>
+
 import std;
 
 using namespace std::literals;
+using namespace units::literals;
+
+namespace biscuit {
+	using rad_t = units::angle::radians<double>;
+	using deg_t = units::angle::degrees<double>;
+
+	constexpr double deg2rad(double angle) { return rad_t(deg_t(angle)).value(); }
+	constexpr double rad2deg(double angle) { return deg_t(angle).value(); }
+	constexpr double deg2rad(deg_t angle) { return rad_t(angle).value(); }
+	constexpr double rad2deg(rad_t angle) { return deg_t(angle).value(); }
+}
+	auto operator <=> (biscuit::rad_t const& l, biscuit::rad_t const& r) { return l.value() <=> r.value(); }
+	auto operator <=> (biscuit::deg_t const& l, biscuit::deg_t const& r) { return l.value() <=> r.value(); }
 
 namespace testPFR {
 	struct A {
@@ -397,22 +412,22 @@ namespace test {
 		fmt::print("lzma version: {}\n", version);
 	}
 
-	//void task(int count) { 
+	//void task(int count) {
 	//	fmt::print("{}, {}\n", std::chrono::system_clock::now(), count);
 	//}
 
-	//void triggerTask(std::stop_token st) { 
+	//void triggerTask(std::stop_token st) {
 	//	auto t0 = std::chrono::system_clock::now();
 
 	//	int count = 0;
-	//	while (!st.stop_requested()) { 
-	//		task(count++); // Call the task function 
-	//		//std::this_thread::sleep_for( std::chrono::microseconds(2500) ); 
+	//	while (!st.stop_requested()) {
+	//		task(count++); // Call the task function
+	//		//std::this_thread::sleep_for( std::chrono::microseconds(2500) );
 	//		std::this_thread::sleep_for(std::chrono::microseconds(10));
 
 	//		if (std::chrono::system_clock::now() - t0 > 5s)
 	//			break;
-	//	} 
+	//	}
 	//}
 
 	//TEST_CASE("misc", "[sleep]") {
@@ -422,10 +437,10 @@ namespace test {
 
 	//	auto t0 = std::chrono::system_clock::now();
 
-	//	while (true) { 
+	//	while (true) {
 	//		if (std::chrono::system_clock::now() - t0 > 5s)
 	//			break;
-	//	} 
+	//	}
 
 	//}
 
@@ -600,7 +615,7 @@ namespace test_copy_class {
 		//A(A&&) = default;
 		//A& operator=(A const&) = default;
 		//A& operator=(A&&) = default;
-		//virtual ~A() = default; 
+		//virtual ~A() = default;
 		A(std::string, int) {}
 		auto operator <=> (A const&) const = default;
 
@@ -1204,5 +1219,217 @@ namespace test_20250523 {
 		}
 	}
 
+
+}
+
+namespace test_20250530 {
+
+	using group_code_t = std::int16_t;
+	struct tagSingle {};
+	struct tagMulti {};
+	struct tagString {};
+	struct tagVector {};
+	//----------------------------------------------------------------
+	template < typename tag, typename TUserDefined, auto offset, group_code_t ... eCodes >
+	struct TGroupVariable {
+	};
+
+	//----------------------------------------------------------------
+	template < group_code_t eGroupCode >
+	struct TGroupVariable<tagSingle, void, nullptr, eGroupCode> {
+	public:
+	};
+
+	////----------------------------------------------------------------
+	//template < group_code_t eGroupCode >
+	//struct TGroupVariable<tagSingle, void, nullptr, eGroupCode> {
+	//public:
+	//};
+
+	////----------------------------------------------------------------
+	//template < typename TUserDefined, group_code_t ... eCodes >
+	//struct TGroupVariable<TUserDefined, nullptr, eCodes...> {
+	//};
+
+	////----------------------------------------------------------------
+	//template < group_code_t ... eCodes >
+	//struct TGroupVariable<std::string, nullptr, eCodes...> {
+	//};
+
+
+
+}
+
+namespace test_20250612 {
+
+	TEST_CASE("substr", "string") {
+		auto str{"{SDFDSF"s};
+		if (str.starts_with('{'))
+			str = str.substr(1);
+		REQUIRE(str == "SDFDSF"s);
+	}
+
+	//TEST_CASE("int16_t to float") {
+	//	for (uint32_t i{1}; i != 0; i++) {
+	//		float k = i;
+	//		uint32_t j = k;
+	//		REQUIRE(j == i);
+	//	}
+	//}
+
+	TEST_CASE("complex") {
+
+		auto c1 { 1. + 2.i};
+		REQUIRE(c1.real() == 1.);
+		REQUIRE(c1.imag() == 2.);
+		REQUIRE(c1 == std::complex<double>(1., 2.));
+
+
+		auto c2 { 3. + 4.i};
+		REQUIRE(c2.real() == 3.);
+		REQUIRE(c2.imag() == 4.);
+		REQUIRE(c2 == std::complex<double>(3., 4.));
+		REQUIRE(c1 + c2 == std::complex<double>(4., 6.));
+
+	}
+}
+
+namespace test_20250618 {
+
+	struct sBGRA {
+		uint8_t b, g, r, a;
+
+		uint32_t& Value() {
+			static_assert(sizeof(*this) == sizeof(uint32_t));
+			return *reinterpret_cast<uint32_t*>(this);
+		}
+	};
+
+	TEST_CASE("BGRA") {
+		sBGRA bgra{0x10, 0x20, 0x30, 0xFF}; // Blue, Green, Red, Alpha
+		REQUIRE(bgra.Value() == 0xff302010); // BGRA in little-endian
+		REQUIRE(bgra.b == 0x10);
+		REQUIRE(bgra.g == 0x20);
+		REQUIRE(bgra.r == 0x30);
+		REQUIRE(bgra.a == 0xFF);
+	}
+
+	struct sArc {
+		double x, y, z;
+		double radius;
+		biscuit::rad_t start, end;
+
+		auto operator <=> (sArc const&) const = default;
+	};
+
+	TEST_CASE("unit::radian") {
+		using namespace biscuit;
+		biscuit::rad_t t1{0.0_rad};
+		biscuit::rad_t t2{3.14_rad};
+		biscuit::deg_t t10{0_deg};
+		biscuit::deg_t t11{90_deg};
+		biscuit::rad_t t3 = t10;
+
+		sArc arc1{1., 2., 3., 4., 0.5_rad, 1.5_rad};
+		sArc arc2{1., 2., 3., 4., 0.5_rad, 1.5_rad};
+		sArc arcB{1., 2., 3., 4., 0.5_rad, 1.6_rad};
+		REQUIRE(arc1.x == 1.);
+		REQUIRE(arc1.y == 2.);
+		REQUIRE(arc1.z == 3.);
+		REQUIRE(arc1.radius == 4.);
+		REQUIRE(arc1.start == biscuit::rad_t(0.5));
+		REQUIRE(arc1.end == biscuit::rad_t(1.5));
+		REQUIRE(arc1.start < arc1.end);
+
+		REQUIRE(arc1 == arc2);
+		REQUIRE(arc1 != arcB);
+		REQUIRE(arc1 < arcB);
+	}
+}
+
+#if 0
+namespace test_20250619 {
+	TEST_CASE("time test") {
+		unsigned long long int size = 8ULL * 1024 * 1024 * 1024;
+		static constexpr int numIterations = 5;
+		long long iterations[numIterations];
+
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<size_t> dist(0, size - 1);
+
+		char* buff = new char[size];
+		for (int it = 0; it < numIterations; it++) {
+			auto start = std::chrono::high_resolution_clock::now();
+			for (unsigned long long int i = 0; i < size; i++) {
+				buff[i] = 1;
+			}
+			auto end = std::chrono::high_resolution_clock::now();
+
+			auto duration = end - start;
+			long long iterationTime = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+			iterations[it] = iterationTime;
+
+			for (int i = 0; i < 1000; i++) {
+				REQUIRE(buff[dist(rd)] == 1);
+			}
+		}
+
+		for (int i = 0; i < numIterations; i++) {
+			std::cout <<  iterations[i] << ' ' << i << '\n';
+		}
+
+		delete[] buff;
+	}
+}
+#endif
+
+//#include <conio.h>
+namespace test_20250625 {
+
+	template < typename TField >
+	bool ReadFieldMember(TField& field, int& iter) {
+		if (iter < 0) {
+			fmt::print("Marker not found\n");
+			return false;
+		}
+		// Simulate reading a field
+		field = iter;
+		fmt::print("Read field: {}\n", field);
+		return true;
+	}
+
+	template < typename ... TField >
+	bool ReadFieldMembers(TField& ... field, int& iter) {
+		bool bAllFailed = true;
+		while (!bAllFailed) {
+			bAllFailed = true;
+			((bAllFailed &= !ReadFieldMember(field, iter)), ...);
+		}
+		return bAllFailed;
+	}
+
+	//TEST_CASE("sleep_for") {
+
+	//	using namespace std::literals;
+
+	//	auto t0 = std::chrono::steady_clock::now();
+	//	size_t dur{};
+	//	while (true) {
+	//		auto t1 = std::chrono::steady_clock::now();
+	//		if ((t1 - t0) >= std::chrono::seconds(dur)) {
+	//			std::println("{} seconds elapsed", dur);
+	//			dur++;
+	//		}
+
+	//		std::this_thread::sleep_for(4'000ms);
+
+	//		// check if key pressed
+	//		if (_kbhit() && _getch()) {
+	//			break; // exit the loop if a key is pressed
+	//		}
+	//	}
+
+	//}
 
 }

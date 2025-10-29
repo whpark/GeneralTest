@@ -8,6 +8,7 @@
     "glaze",
     "liblzma",
     "boost-endian",
-    "leveldb"
+    "leveldb",
+    "units"
   ]
 }
