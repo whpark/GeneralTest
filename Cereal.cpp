@@ -6,7 +6,8 @@
 #include <cereal/archives/json.hpp>
 #include <cereal/types/polymorphic.hpp>
 
-#include "fmt/core.h"
+#include <fmt/core.h>
+#include <opencv2/opencv.hpp>
 
 import std;
 import cereal_test;
@@ -30,6 +31,10 @@ import cereal_test;
 
 namespace ct {
 
+	void TestFunc() {
+		std::string str;
+		str.find_last_not_of('1'); // calls
+	}
 
 	template <typename T, typename TPTR>
 	T* GetAs(TPTR& ptr) {
@@ -61,6 +66,7 @@ namespace ct {
 			std::shared_ptr<BaseClass> ptr1 = std::make_shared<DerivedClassOne>(1);
 			std::shared_ptr<BaseClass> ptr2 = std::make_shared<EmbarrassingDerivedClass>(2.0f);
 			std::shared_ptr<BaseClass> ptrA = std::make_shared<DerivedClassA>(5, 6.0f);
+			GetAs<DerivedClassA>(ptrA)->extra_data = u8"가나다";
 			try {
 				{
 					std::ofstream os("polymorphism_test.xml");
@@ -105,6 +111,7 @@ namespace ct {
 				REQUIRE(GetAs<EmbarrassingDerivedClass>(ptr2)->y == 2);
 				REQUIRE(GetAs<DerivedClassA>(ptrA)->x == 5);
 				REQUIRE(GetAs<DerivedClassA>(ptrA)->y == 6.0f);
+				REQUIRE(GetAs<DerivedClassA>(ptrA)->extra_data == u8"가나다");
 			}
 		}
 
@@ -127,6 +134,7 @@ namespace ct {
 				REQUIRE(GetAs<EmbarrassingDerivedClass>(ptr2)->y == 2);
 				REQUIRE(GetAs<DerivedClassA>(ptrA)->x == 5);
 				REQUIRE(GetAs<DerivedClassA>(ptrA)->y == 6.0f);
+				REQUIRE(GetAs<DerivedClassA>(ptrA)->extra_data == u8"가나다");
 			}
 		}
 
@@ -149,8 +157,27 @@ namespace ct {
 				REQUIRE(GetAs<EmbarrassingDerivedClass>(ptr2)->y == 2);
 				REQUIRE(GetAs<DerivedClassA>(ptrA)->x == 5);
 				REQUIRE(GetAs<DerivedClassA>(ptrA)->y == 6.0f);
+				REQUIRE(GetAs<DerivedClassA>(ptrA)->extra_data == u8"가나다");
 			}
 		}
 	}
 
+	TEST_CASE("Mat", "[Cereal]") {
+		{
+			std::ofstream os("mat_test.json");
+			cv::Mat mat {cv::Matx33f{
+				1.0f, 2.0f, 3.0f,
+				4.0f, 5.0f, 6.0f,
+				7.0f, 8.0f, 9.0f}};
+			cereal::JSONOutputArchive ar(os);
+			ar(cereal::make_nvp("mat", mat));
+		}
+		{
+			std::ifstream is("mat_test.json");
+			cv::Mat mat = cv::Mat::zeros(3, 3, CV_32FC1);
+			cereal::JSONInputArchive ar(is);
+			ar(cereal::make_nvp("mat", mat));
+			REQUIRE(mat.at<float>(2, 2) == 9.0f);
+		}
+	}
 }	// namespace ct

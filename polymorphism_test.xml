@@ -1,38 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <cereal>
-	<value0>
-		<polymorphic_id>2147483649</polymorphic_id>
-		<polymorphic_name>ct::DerivedClassOne</polymorphic_name>
-		<ptr_wrapper>
-			<id>2147483649</id>
-			<data>
-				<X>1</X>
-			</data>
-		</ptr_wrapper>
-	</value0>
-	<value1>
-		<polymorphic_id>2147483650</polymorphic_id>
-		<polymorphic_name>DerivedClassTwo</polymorphic_name>
-		<ptr_wrapper>
-			<id>2147483650</id>
-			<data>
-				<value0>2</value0>
-			</data>
-		</ptr_wrapper>
-	</value1>
-	<value2>
-		<polymorphic_id>2147483651</polymorphic_id>
-		<polymorphic_name>ct::DerivedClassA</polymorphic_name>
-		<ptr_wrapper>
-			<id>2147483651</id>
-			<data>
-				<cereal_class_version>1</cereal_class_version>
-				<value0>
-					<X>5</X>
-				</value0>
-				<value1>6</value1>
-			</data>
-		</ptr_wrapper>
-	</value2>
+	<value0/>
 </cereal>
 

@@ -1,6 +1,7 @@
 ﻿{
   "dependencies": [
     "boost-pfr",
+    "boost-serialization",
     "catch2",
     "cereal",
     "fmt",
@@ -9,6 +10,7 @@
     "liblzma",
     "boost-endian",
     "leveldb",
-    "units"
+    "units",
+    "opencv"
   ]
 }
