@@ -478,7 +478,7 @@ struct __declspec(align(1)) sReturn {
 	int b;
 };
 static_assert(sizeof(sReturn) == 12);	// WHY?????????? -> only larger values valid
-static_assert(offsetof(sReturn, i) == 4);	// WHY??????
+static_assert(offsetof(sReturn, i) == 4);	// WHY?????? <<== 스펙상, __declspec 은 큰 값만 적용됨
 
 #pragma pack(push, 1)
 struct sReturn2 {
@@ -740,41 +740,16 @@ namespace memory {
 			this->reset(other ? cloner2(*other).release() : nullptr);
 			return*this;
 		}
-	};
 
-	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
-	bool operator == (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
-		bool bEmptyA = !a;
-		bool bEmptyB = !b;
-		if (bEmptyA and bEmptyB) return true;
-		else if (bEmptyA or bEmptyB) return false;
-		return *a == *b;
-	}
-	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
-	bool operator != (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
-		return !(a == b);
-	}
-	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
-	bool operator < (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
-		bool bEmptyA = !a;
-		bool bEmptyB = !b;
-		if (bEmptyA and bEmptyB) return false;
-		else if (bEmptyA) return true;
-		else if (bEmptyB) return false;
-		return *a < *b;
-	}
-	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
-	bool operator > (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
-		return b < a;
-	}
-	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
-	bool operator <= (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
-		return a == b or a < b;
-	}
-	template < typename T1, typename T2, typename ... targs, typename ... targs2 >
-	bool operator >= (TCloneablePtr<T1, targs...> const& a, TCloneablePtr<T2, targs2...> const& b) {
-		return b <= a;
-	}
+		auto operator <=> (TCloneablePtr const& other) const {
+			bool bEmptyA = !(*this);
+			bool bEmptyB = !other;
+			if (bEmptyA and bEmptyB) return std::strong_ordering::equal;
+			else if (bEmptyA) return std::strong_ordering::less;
+			else if (bEmptyB) return std::strong_ordering::greater;
+			return (**this) <=> (*other);
+		}
+	};
 
 	class aaa {
 	public:
