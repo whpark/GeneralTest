@@ -12,21 +12,21 @@
 import std;
 import cereal_test;
 
-//// Register DerivedClassOne
-//CEREAL_REGISTER_TYPE(ct::DerivedClassOne);
-//CEREAL_REGISTER_TYPE(ct::DerivedClassA)
-//
-//// Register EmbarassingDerivedClass with a less embarrasing name
-//CEREAL_REGISTER_TYPE_WITH_NAME(ct::EmbarrassingDerivedClass, "DerivedClassTwo");
-//
-//// Note that there is no need to register the base class, only derived classes
-////  However, since we did not use cereal::base_class, we need to clarify
-////  the relationship (more on this later)
-//CEREAL_REGISTER_POLYMORPHIC_RELATION(ct::BaseClass, ct::DerivedClassOne)
-//CEREAL_REGISTER_POLYMORPHIC_RELATION(ct::BaseClass, ct::EmbarrassingDerivedClass)
-//CEREAL_REGISTER_POLYMORPHIC_RELATION(ct::DerivedClassOne, ct::DerivedClassA)
-//
-//CEREAL_CLASS_VERSION(ct::DerivedClassA, ct::DerivedClassA::s_version);
+// Register DerivedClassOne
+CEREAL_REGISTER_TYPE(ct::DerivedClassOne);
+CEREAL_REGISTER_TYPE(ct::DerivedClassA)
+
+// Register EmbarassingDerivedClass with a less embarrasing name
+CEREAL_REGISTER_TYPE_WITH_NAME(ct::EmbarrassingDerivedClass, "DerivedClassTwo");
+
+// Note that there is no need to register the base class, only derived classes
+//  However, since we did not use cereal::base_class, we need to clarify
+//  the relationship (more on this later)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(ct::BaseClass, ct::DerivedClassOne)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(ct::BaseClass, ct::EmbarrassingDerivedClass)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(ct::DerivedClassOne, ct::DerivedClassA)
+
+CEREAL_CLASS_VERSION(ct::DerivedClassA, ct::DerivedClassA::s_version);
 
 
 namespace ct {
@@ -67,7 +67,7 @@ namespace ct {
 			std::shared_ptr<BaseClass> ptr2 = std::make_shared<EmbarrassingDerivedClass>(2.0f);
 			std::shared_ptr<BaseClass> ptrA = std::make_shared<DerivedClassA>(5, 6.0f);
 			GetAs<DerivedClassA>(ptrA)->extra_data = u8"가나다";
-			try {
+			//try {
 				{
 					std::ofstream os("polymorphism_test.xml");
 					cereal::XMLOutputArchive oarchive(os);
@@ -83,13 +83,13 @@ namespace ct {
 					cereal::BinaryOutputArchive oarchive(os);
 					oarchive(ptr1, ptr2, ptrA);
 				}
-			}
-			catch (std::exception& e) {
-				fmt::print("{}", e.what());
-			}
-			catch (...) {
-				fmt::print("Unknown exception");
-			}
+			//}
+			//catch (std::exception& e) {
+			//	fmt::print("{}", e.what());
+			//}
+			//catch (...) {
+			//	fmt::print("Unknown exception");
+			//}
 		}
 
 		{

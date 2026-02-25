@@ -515,13 +515,13 @@ namespace {
 		REQUIRE(a < a2);
 	}
 
-	struct { int a; int b; } PutSomething(int a, int b) { return {a, b}; };
-	//auto PutSomething2(int a, int b) -> struct sReturn { int a, b;} {
-	//	struct sReturn {
-	//		int a; int b;
-	//	};
-	//	return sReturn{a, b};
-	//};
+	//struct { int a; int b; } PutSomething(int a, int b) { return {a, b}; };
+	auto PutSomething2(int a, int b) /*-> struct sReturn { int a, b;}*/ {
+		struct sReturn {
+			int a; int b;
+		};
+		return sReturn{a, b};
+	};
 
 }
 
@@ -719,7 +719,7 @@ namespace memory {
 		static inline CLONE cloner;
 
 		TCloneablePtr(std::unique_ptr<T>&& other) : base_t(std::move(other)) {}
-		TCloneablePtr(this_t&& other) : base_t(std::move(other)) {}
+		TCloneablePtr(this_t&& other) noexcept : base_t(std::move(other)) {}
 		// copy constructor
 		TCloneablePtr(std::unique_ptr<T> const& other) : base_t(other ? cloner(*other) : nullptr) {}
 		TCloneablePtr(this_t const& other) : base_t(other ? cloner(*other) : nullptr) {}
@@ -748,6 +748,14 @@ namespace memory {
 			else if (bEmptyA) return std::strong_ordering::less;
 			else if (bEmptyB) return std::strong_ordering::greater;
 			return (**this) <=> (*other);
+		}
+
+		auto operator == (const TCloneablePtr& other) const {
+			bool bEmptyA = !(*this);
+			bool bEmptyB = !other;
+			if (bEmptyA and bEmptyB) return true;
+			else if (bEmptyA or bEmptyB) return false;
+			return (**this) == (*other);
 		}
 	};
 
@@ -1406,5 +1414,23 @@ namespace test_20250625 {
 	//	}
 
 	//}
+
+}
+
+namespace test_2026_02_25 {
+
+	TEST_CASE("tuple") {
+		using Values = std::tuple<int, double, std::string>;
+		std::vector <Values> storage;
+		storage.emplace_back(42, 3.14, "Hello");
+
+		fmt::println("storages");
+		for (auto&& item : storage) {
+			std::apply([](auto&& ... args) {
+				(..., fmt::print("{},", args));
+			}, item);
+		}
+		fmt::println("");
+	}
 
 }

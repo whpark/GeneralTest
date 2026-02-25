@@ -209,7 +209,9 @@ export namespace ct {
 }
 
 
+export {
 // Register DerivedClassOne
+CEREAL_REGISTER_TYPE(ct::BaseClass);
 CEREAL_REGISTER_TYPE(ct::DerivedClassOne);
 CEREAL_REGISTER_TYPE(ct::DerivedClassA)
 
@@ -224,3 +226,5 @@ CEREAL_REGISTER_POLYMORPHIC_RELATION(ct::BaseClass, ct::EmbarrassingDerivedClass
 CEREAL_REGISTER_POLYMORPHIC_RELATION(ct::DerivedClassOne, ct::DerivedClassA)
 
 CEREAL_CLASS_VERSION(ct::DerivedClassA, ct::DerivedClassA::s_version);
+}
+
