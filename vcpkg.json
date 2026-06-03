@@ -1,5 +1,6 @@
-﻿{
+{
   "dependencies": [
+    "boost-endian",
     "boost-pfr",
     "boost-serialization",
     "catch2",
@@ -7,10 +8,10 @@
     "fmt",
     "foonathan-lexy",
     "glaze",
-    "liblzma",
-    "boost-endian",
     "leveldb",
+    "liblzma",
+    "opencv",
     "units",
-    "opencv"
+    "eigen3"
   ]
 }

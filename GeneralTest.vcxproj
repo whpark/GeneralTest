@@ -30,27 +30,27 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v145</PlatformToolset>
-    <MSVCPreviewEnabled>false</MSVCPreviewEnabled>
+    <MSVCPreviewEnabled>true</MSVCPreviewEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v145</PlatformToolset>
-    <MSVCPreviewEnabled>false</MSVCPreviewEnabled>
+    <MSVCPreviewEnabled>true</MSVCPreviewEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v145</PlatformToolset>
-    <MSVCPreviewEnabled>false</MSVCPreviewEnabled>
+    <MSVCPreviewEnabled>true</MSVCPreviewEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v145</PlatformToolset>
-    <MSVCPreviewEnabled>false</MSVCPreviewEnabled>
+    <MSVCPreviewEnabled>true</MSVCPreviewEnabled>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -178,6 +178,7 @@
     <ClCompile Include="cereal_templ.cpp" />
     <ClCompile Include="constexpr_counter.ixx" />
     <ClCompile Include="crtp.ixx" />
+    <ClCompile Include="Eigen.ixx" />
     <ClCompile Include="EqualityOperator.cpp" />
     <ClCompile Include="GeneralTest.cpp" />
     <ClCompile Include="incomplete_type.cpp" />
@@ -193,7 +194,9 @@
     <ClCompile Include="reflection.ixx" />
     <ClCompile Include="SRWLock.ixx" />
     <ClCompile Include="Cereal.cpp" />
+    <ClCompile Include="test2.ixx" />
     <ClCompile Include="tests.cpp" />
+    <ClCompile Include="test2.cpp" />
     <ClCompile Include="TheDoubleLifeOfObjects.cpp" />
   </ItemGroup>
   <ItemGroup>

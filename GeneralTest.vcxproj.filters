@@ -78,6 +78,15 @@
     <ClCompile Include="incomplete_type.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test2.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Eigen.ixx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
