@@ -1100,11 +1100,14 @@ namespace test_MSVC_static {
 	template < class T >
 	class TDerived : public IBase {
 	public:
+		using this_t = TDerived;
+	public:
 		T a{};
 
 		void foo() override {};
 
-		inline static sRegister reg{"derived", [] { return std::make_unique<TDerived>(); } };
+		static std::unique_ptr<IBase> Create() { return std::make_unique<TDerived>(); }
+		inline static sRegister reg{"derived", &this_t::Create};
 	};
 
 	class xDerived : public TDerived<int> {

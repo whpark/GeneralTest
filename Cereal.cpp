@@ -1,9 +1,18 @@
 #include <catch2/catch_all.hpp>
 
 // Include the polymorphic serialization and registration mechanisms
+#include <cereal/cereal.hpp>
 #include <cereal/archives/xml.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
+#include <cereal/types/map.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/deque.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/complex.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/array.hpp>
+#include <cereal/types/vector.hpp>
 #include <cereal/types/polymorphic.hpp>
 
 #include <fmt/core.h>
@@ -61,6 +70,27 @@ namespace ct {
 				REQUIRE(lst[4] == 5);
 			}
 		}
+		{
+			std::string str;
+			{
+				std::ostringstream ss;
+				std::vector<int> lst { 1, 2, 3, 4, 5 };
+				{
+					cereal::JSONOutputArchive ar(ss);	// ar 이 destructor에서 flush 되면서 ar이 끝나고, '}' 가 출력됨
+					ar(lst);
+				}
+				str = ss.str();
+			}
+			{
+				std::istringstream ss(str);
+				cereal::JSONInputArchive ar(ss);
+				std::vector<int> lst;
+				lst.reserve(5);
+				ar(lst);
+				REQUIRE(lst[4] == 5);
+			}
+		}
+
 		{
 			// Create instances of the derived classes, but only keep base class pointers
 			std::shared_ptr<BaseClass> ptr1 = std::make_shared<DerivedClassOne>(1);

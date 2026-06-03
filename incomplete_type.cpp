@@ -5,34 +5,32 @@ import std;
 
 namespace incomplete_type {
 
-	xTesterDest::~xTesterDest() {
-	}
-
 	class xIncompleteType {
 	public:
 		std::string name;
-		xIncompleteType(std::string str) : name(std::move(str)) {
-			std::println("xIncompleteType: {}", name);
+		xIncompleteType() {
+			std::println("xIncompleteType constructor");
 		}
 		~xIncompleteType() {
-			std::println("~xIncompleteType: {}", name);
+			std::println("xIncompleteType destructor");
 		}
 	};
 
+	xIncompleteTypeDefaultDestImpl::xIncompleteTypeDefaultDestImpl() = default;
+	xIncompleteTypeDefaultDestImpl::~xIncompleteTypeDefaultDestImpl() = default;
+	xIncompleteTypeDest::xIncompleteTypeDest() { }
+	xIncompleteTypeDest::~xIncompleteTypeDest() { }
+
 	TEST_CASE("incomplete_type", "[incomplete_type]") {
 		std::println("===========");
-		{
-			xTesterDefaultDest tester1;
-			tester1.m_ptr = std::make_unique<xIncompleteType>("xTesterDefaultDest");
-		}
-		{
-			xTesterDestInline tester2;
-			tester2.m_ptr = std::make_unique<xIncompleteType>("xTesterDestInline");
-		}
-		{
-			xTesterDest tester3;
-			tester3.m_ptr = std::make_unique<xIncompleteType>("xTesterDest");
-		}
+		xTester tester;
+		tester.m_ptr = std::make_unique<xIncompleteType>();
+		tester.m_ptrDefaultDest = std::make_unique<xIncompleteTypeDefaultDest>();
+		tester.m_ptrDefaultDestImpl = std::make_unique<xIncompleteTypeDefaultDestImpl>();
+		tester.m_ptrDestInline = std::make_unique<xIncompleteTypeDestInline>();
+		tester.m_ptrDest = std::make_unique<xIncompleteTypeDest>();
 	}
+
+
 
 };

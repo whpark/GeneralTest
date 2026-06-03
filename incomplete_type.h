@@ -4,29 +4,46 @@
 
 namespace incomplete_type {
 
-	//
 	class xIncompleteType;
 
 	//
-	class xTesterDefaultDest {
+	class xIncompleteTypeDefaultDest {
 	public:
-		std::unique_ptr<xIncompleteType> m_ptr;
-
-		~xTesterDefaultDest() = default;
+		std::string name;
+		xIncompleteTypeDefaultDest() = default;
+		~xIncompleteTypeDefaultDest() = default;
+	};
+	class xIncompleteTypeDefaultDestImpl {
+	public:
+		std::string name;
+		xIncompleteTypeDefaultDestImpl();
+		~xIncompleteTypeDefaultDestImpl();
+	};
+	class xIncompleteTypeDestInline {
+	public:
+		std::string name;
+		xIncompleteTypeDestInline() {}
+		~xIncompleteTypeDestInline() {}
+	};
+	class xIncompleteTypeDest {
+	public:
+		std::string name;
+		xIncompleteTypeDest();
+		~xIncompleteTypeDest();
 	};
 
-	class xTesterDestInline {
+	//
+	class xTester {
 	public:
 		std::unique_ptr<xIncompleteType> m_ptr;
+		std::unique_ptr<xIncompleteTypeDefaultDest> m_ptrDefaultDest;
+		std::unique_ptr<xIncompleteTypeDefaultDestImpl> m_ptrDefaultDestImpl;
+		std::unique_ptr<xIncompleteTypeDestInline> m_ptrDestInline;
+		std::unique_ptr<xIncompleteTypeDest> m_ptrDest;
 
-		~xTesterDestInline() {}
+		~xTester() = default;
 	};
 
-	class xTesterDest {
-	public:
-		std::unique_ptr<xIncompleteType> m_ptr;
 
-		~xTesterDest();
-	};
 
 }
